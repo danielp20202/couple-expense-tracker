@@ -1,0 +1,21 @@
+/* ----------------------------------------------------------------------------
+ * globals.css — base styles + font imports.
+ *
+ * TO CHANGE THE TYPEFACE: swap the @import URL below for another Google Font
+ * (or your own @font-face), then update `fonts` in /theme.ts to match the
+ * font name. That's the only change needed app-wide.
+ * -------------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  @apply bg-background text-ink font-sans antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
