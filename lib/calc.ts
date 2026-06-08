@@ -45,6 +45,38 @@ export interface MonthlySummary {
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+/** Minimal shape needed for the settlement balance (works for any row source). */
+export interface BalanceExpense {
+  amount: number;
+  paid_from: "personal" | "joint";
+  paid_by: string;
+}
+
+/**
+ * The cumulative "settlement balance" the dashboard shows, carried across months.
+ *
+ *   balance = (all expenses ÷ 2) − (depositor's personal-paid) − (settlements)
+ *
+ * `depositorId` is the partner who deposits into the joint account (e.g. Daniel —
+ * the non-rent-holder). Pass *all* expenses and settlements dated up to and
+ * including the viewed month (carry-over is automatic since we just sum).
+ *
+ * Positive → depositor still owes this much (deposit / the rent holder reclaims).
+ * Negative → depositor has covered extra; it rolls into the next rent transfer.
+ */
+export function computeSettlementBalance(
+  expenses: BalanceExpense[],
+  depositorId: string,
+  settlements: { amount: number }[]
+): number {
+  const total = expenses.reduce((s, e) => s + Number(e.amount), 0);
+  const depositorPersonal = expenses
+    .filter((e) => e.paid_from === "personal" && e.paid_by === depositorId)
+    .reduce((s, e) => s + Number(e.amount), 0);
+  const settled = settlements.reduce((s, x) => s + Number(x.amount), 0);
+  return round2(total / 2 - depositorPersonal - settled);
+}
+
 export function computeMonthlySummary(
   expenses: Expense[],
   personA: Profile,

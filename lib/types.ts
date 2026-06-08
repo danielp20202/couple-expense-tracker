@@ -48,11 +48,11 @@ export interface RecurringExpenseWithType extends RecurringExpense {
   expense_type: { name: string } | null;
 }
 
-/** Tracks whether a month's rent reimbursement has been transferred back. */
-export interface TransferStatus {
-  month: string;
+/** A logged transfer the rent holder made from the joint account to their own. */
+export interface Settlement {
+  id: string;
   profile_id: string;
-  done: boolean;
-  done_on: string | null; // YYYY-MM-DD
-  updated_at: string;
+  amount: number;
+  date: string; // YYYY-MM-DD
+  created_at: string;
 }

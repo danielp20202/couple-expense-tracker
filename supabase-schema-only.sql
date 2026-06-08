@@ -52,14 +52,14 @@ create table if not exists recurring_seeded (
   primary key (recurring_id, month)
 );
 
-create table if not exists transfer_status (
-  month       text not null,
+create table if not exists settlements (
+  id          uuid primary key default gen_random_uuid(),
   profile_id  uuid not null references profiles (id),
-  done        boolean not null default false,
-  done_on     date,
-  updated_at  timestamptz not null default now(),
-  primary key (month, profile_id)
+  amount      numeric(12, 2) not null check (amount > 0),
+  date        date not null default current_date,
+  created_at  timestamptz not null default now()
 );
+create index if not exists settlements_date_idx on settlements (date);
 
 -- Row level security (same permissive "no-auth" model as the original setup).
 alter table profiles          enable row level security;
@@ -67,14 +67,14 @@ alter table expense_types     enable row level security;
 alter table recurring_expenses enable row level security;
 alter table expenses          enable row level security;
 alter table recurring_seeded  enable row level security;
-alter table transfer_status   enable row level security;
+alter table settlements        enable row level security;
 
 drop policy if exists "open access" on profiles;
 drop policy if exists "open access" on expense_types;
 drop policy if exists "open access" on recurring_expenses;
 drop policy if exists "open access" on expenses;
 drop policy if exists "open access" on recurring_seeded;
-drop policy if exists "open access" on transfer_status;
+drop policy if exists "open access" on settlements;
 
 create policy "open access" on profiles
   for all to anon, authenticated using (true) with check (true);
@@ -86,5 +86,5 @@ create policy "open access" on expenses
   for all to anon, authenticated using (true) with check (true);
 create policy "open access" on recurring_seeded
   for all to anon, authenticated using (true) with check (true);
-create policy "open access" on transfer_status
+create policy "open access" on settlements
   for all to anon, authenticated using (true) with check (true);

@@ -91,6 +91,9 @@ export const content = {
     cancel: "Cancel",
     delete: "Delete",
     confirmDelete: "Delete this expense?",
+    // Settlement (transfer) records
+    transfersTitle: "Transfers",
+    confirmDeleteTransfer: "Delete this transfer record? It will change the running balance.",
     // Filters & controls
     monthFilterLabel: "Month",
     allMonths: "All months",
@@ -125,21 +128,21 @@ export const content = {
     switch: "Switch",
     greeting: (name: string) => `Hi, ${name}`,
     youTag: "You",
-    // Shown to the person who deposits their share into the joint account (e.g. Daniel).
+    // --- Settlement card: depositor (e.g. Daniel) ---
     yourTransferTitle: "What you deposit into the joint account",
-    yourTransferHelp: (rentPayer: string) =>
-      `Your half for this month, after the shared expenses you've already paid on your personal card. Deposit it into the joint account — ${rentPayer} pays the rent from there.`,
-    // Shown to the rent holder (e.g. Laura): the partner's share to reclaim from joint.
+    yourTransferHelp: "Deposit this into the joint account so the rent gets covered together.",
+    depositNothing: "Nothing to deposit right now — you're all settled up.",
+    youCoveredExtra: (amt: string) =>
+      `You've covered ${amt} extra — transfer ${amt} less at the next rent.`,
+    // --- Settlement card: rent holder (e.g. Laura) ---
     reclaimTitle: "Transfer back to your account",
-    reclaimHelp: (partner: string) =>
-      `${partner}'s share of the rent. Once it's in the joint account, transfer this amount into your personal bank account.`,
-    // Transfer-done checkbox (rent holder) + read-only status (partner).
-    transferDoneLabel: "I've transferred this to my account",
-    transferDoneOn: (date: string) => `done ${date}`,
-    partnerTransferredOn: (name: string, date: string) =>
-      `${name} transferred this on ${date}.`,
-    partnerNotTransferred: (name: string) =>
-      `${name} hasn't transferred this back yet.`,
+    reclaimHelp: "Transfer this amount from the joint account into your personal account.",
+    settleButton: (amt: string) => `I've transferred ${amt} to my account`,
+    allSettled: "You're all settled up.",
+    partnerCoveredExtra: (partner: string, amt: string) =>
+      `${partner}'s covered ${amt} extra this cycle — it'll come off the next rent transfer.`,
+    // History: a logged settlement row.
+    transferRowLabel: "Transfer to personal account",
     // Profile photos, reused by the picker and the switcher. Falls back to initials if absent.
     photos: { Laura: "/images/laura_1.webp" } as Record<string, string>,
   },

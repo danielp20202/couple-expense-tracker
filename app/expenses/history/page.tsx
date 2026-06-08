@@ -3,11 +3,12 @@ import { getCouple } from "@/lib/profiles";
 import { monthBounds } from "@/lib/month";
 import { content } from "@/content";
 import { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "@/lib/history";
-import type { ExpenseType, ExpenseWithType } from "@/lib/types";
+import type { ExpenseType, ExpenseWithType, Settlement } from "@/lib/types";
 import { Card, SectionTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { HistoryControls } from "./HistoryControls";
 import { HistoryTable } from "./HistoryTable";
+import { SettlementList } from "./SettlementList";
 
 export const dynamic = "force-dynamic";
 
@@ -46,18 +47,27 @@ export default async function HistoryPage({
     .order("created_at", { ascending: false })
     .limit(limit);
 
+  let settlementsQuery = supabase
+    .from("settlements")
+    .select("*")
+    .order("date", { ascending: false })
+    .limit(limit);
+
   if (month) {
     const { start, end } = monthBounds(month);
     query = query.gte("date", start).lt("date", end);
+    settlementsQuery = settlementsQuery.gte("date", start).lt("date", end);
   }
 
-  const [expensesRes, datesRes, typesRes] = await Promise.all([
+  const [expensesRes, settlementsRes, datesRes, typesRes] = await Promise.all([
     query,
+    settlementsQuery,
     supabase.from("expenses").select("date").order("date", { ascending: false }),
     supabase.from("expense_types").select("*").order("name", { ascending: true }),
   ]);
 
   const expenses = (expensesRes.data ?? []) as ExpenseWithType[];
+  const settlements = (settlementsRes.data ?? []) as Settlement[];
   const types = (typesRes.data ?? []) as ExpenseType[];
   const availableMonths = Array.from(
     new Set(((datesRes.data ?? []) as { date: string }[]).map((r) => r.date.slice(0, 7)))
@@ -87,6 +97,13 @@ export default async function HistoryPage({
         personA={couple.personA}
         personB={couple.personB}
       />
+
+      {settlements.length > 0 && (
+        <div className="space-y-3">
+          <SectionTitle>{content.history.transfersTitle}</SectionTitle>
+          <SettlementList settlements={settlements} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,17 +1,18 @@
 import { redirect } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getCouple } from "@/lib/profiles";
-import { computeMonthlySummary } from "@/lib/calc";
+import { computeMonthlySummary, computeSettlementBalance } from "@/lib/calc";
+import type { BalanceExpense } from "@/lib/calc";
 import { normalizeMonth, monthBounds } from "@/lib/month";
 import { getSelectedProfileId } from "@/lib/profile-session";
-import { formatMoney, formatDateShort } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { content } from "@/content";
 import type { Expense } from "@/lib/types";
 import { Card, Money, SectionTitle } from "@/app/components/ui";
 import { MonthSwitcher } from "@/app/components/MonthSwitcher";
 import { SeedFixedCostsButton } from "@/app/components/SeedFixedCostsButton";
 import { ProfileSwitcher } from "@/app/components/ProfileSwitcher";
-import { TransferDoneToggle } from "@/app/components/TransferDoneToggle";
+import { SettleTransferButton } from "@/app/components/SettleTransferButton";
 import { SetupNotice } from "@/app/components/SetupNotice";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,6 @@ export default async function DashboardPage({
 }: {
   searchParams: { month?: string };
 }) {
-  // Require a selected profile; the dashboard is shown from "your" perspective.
   const selectedId = getSelectedProfileId();
   if (!selectedId) redirect("/select");
 
@@ -38,50 +38,52 @@ export default async function DashboardPage({
   }
 
   const { personA, personB } = couple;
-
-  // Resolve "me" / "partner" from the selected profile. Stale cookie → re-pick.
   const me = [personA, personB].find((p) => p.id === selectedId);
   if (!me) redirect("/select");
   const partner = personA.id === selectedId ? personB : personA;
 
   const { start, end } = monthBounds(month);
   const supabase = getSupabaseServer();
-  const { data } = await supabase
-    .from("expenses")
-    .select("*")
-    .gte("date", start)
-    .lt("date", end);
 
-  const expenses = (data ?? []) as Expense[];
+  // Per-month expenses → Total / Fair share / Paid-personally cards.
+  // Cumulative-through-month expenses + settlements → the carry-over balance.
+  const [monthRes, allRes, setlRes, jointRes] = await Promise.all([
+    supabase.from("expenses").select("*").gte("date", start).lt("date", end),
+    supabase.from("expenses").select("amount, paid_from, paid_by").lt("date", end),
+    supabase.from("settlements").select("amount").lt("date", end),
+    supabase.from("recurring_expenses").select("paid_by").eq("paid_from", "joint"),
+  ]);
+
+  const expenses = (monthRes.data ?? []) as Expense[];
   const summary = computeMonthlySummary(expenses, personA, personB);
-  const hasExpenses = expenses.length > 0;
-
   const mine = summary.people.find((p) => p.profile.id === selectedId)!;
   const theirs = summary.people.find((p) => p.profile.id !== selectedId)!;
+  const hasMonthExpenses = expenses.length > 0;
 
-  // The rent holder pays the joint rent and reclaims the partner's share from
-  // the joint account. They get the "transfer back to your account" framing +
-  // the done checkbox; the other person gets the "deposit" framing.
-  const { data: jointRec } = await supabase
-    .from("recurring_expenses")
-    .select("paid_by")
-    .eq("paid_from", "joint");
-  const rentHolderId = (jointRec ?? []).map((r) => r.paid_by as string)[0] ?? null;
+  // Rent holder = whoever pays the joint rent; depositor = their partner.
+  const rentHolderId = (jointRes.data ?? []).map((r) => r.paid_by as string)[0] ?? null;
+  const depositorId =
+    rentHolderId === null
+      ? null
+      : personA.id === rentHolderId
+        ? personB.id
+        : personA.id;
   const iAmRentHolder = rentHolderId === selectedId;
 
-  // Shared status: has this month's reimbursement been transferred back yet?
-  let transferDone = false;
-  let transferDoneOn: string | null = null;
-  if (rentHolderId) {
-    const { data: st } = await supabase
-      .from("transfer_status")
-      .select("done, done_on")
-      .eq("month", month)
-      .eq("profile_id", rentHolderId)
-      .maybeSingle();
-    transferDone = st?.done ?? false;
-    transferDoneOn = (st?.done_on as string | null) ?? null;
-  }
+  // Cumulative carry-over balance (positive → depositor owes / rent holder reclaims).
+  const balance =
+    depositorId === null
+      ? 0
+      : computeSettlementBalance(
+          (allRes.data ?? []) as BalanceExpense[],
+          depositorId,
+          (setlRes.data ?? []) as { amount: number }[]
+        );
+
+  const positive = balance > 0;
+  const negative = balance < 0;
+  const abs = Math.abs(balance);
+  const partnerName = partner.display_name ?? "";
 
   return (
     <div className="space-y-5">
@@ -102,71 +104,50 @@ export default async function DashboardPage({
         </div>
       </Card>
 
-      {!hasExpenses ? (
+      {/* Settlement / transfer card — cumulative, sign-aware. */}
+      {rentHolderId && (
         <Card>
-          <p className="text-ink-muted text-sm">
-            {content.dashboard.nothingThisMonth}
-          </p>
-        </Card>
-      ) : (
-        <>
-          {/* Rent holder (e.g. Laura) reclaims the partner's share from the joint
-              account and ticks it done; everyone else sees their deposit. */}
-          {iAmRentHolder ? (
-            <Card>
-              <SectionTitle>{content.profiles.reclaimTitle}</SectionTitle>
+          <SectionTitle>
+            {iAmRentHolder
+              ? content.profiles.reclaimTitle
+              : content.profiles.yourTransferTitle}
+          </SectionTitle>
+
+          {positive ? (
+            <>
               <p className="text-sm text-ink-muted mb-3">
-                {content.profiles.reclaimHelp(partner.display_name ?? "")}
-              </p>
-              <div className="flex items-baseline justify-between">
-                <span className="text-ink-muted text-sm">
-                  {`${partner.display_name}'s share`}
-                </span>
-                <Money
-                  value={formatMoney(theirs.transferToJoint)}
-                  className="text-3xl font-bold"
-                />
-              </div>
-              {rentHolderId && (
-                <TransferDoneToggle
-                  month={month}
-                  profileId={rentHolderId}
-                  done={transferDone}
-                  doneOn={transferDoneOn}
-                />
-              )}
-            </Card>
-          ) : (
-            <Card>
-              <SectionTitle>{content.profiles.yourTransferTitle}</SectionTitle>
-              <p className="text-sm text-ink-muted mb-3">
-                {content.profiles.yourTransferHelp(partner.display_name ?? "")}
+                {iAmRentHolder
+                  ? content.profiles.reclaimHelp
+                  : content.profiles.yourTransferHelp}
               </p>
               <div className="flex items-baseline justify-between">
                 <span className="text-ink font-medium">
-                  {me.display_name}{" "}
-                  <span className="text-ink-muted text-xs">
-                    ({content.profiles.youTag})
-                  </span>
+                  {iAmRentHolder ? `${partnerName}'s share` : me.display_name}
                 </span>
-                <Money
-                  value={formatMoney(mine.transferToJoint)}
-                  className="text-3xl font-bold"
-                />
+                <Money value={formatMoney(balance)} className="text-3xl font-bold" />
               </div>
-              {rentHolderId && (
-                <p className="mt-3 border-t border-border pt-3 text-sm text-ink-muted">
-                  {transferDone && transferDoneOn
-                    ? content.profiles.partnerTransferredOn(
-                        partner.display_name ?? "",
-                        formatDateShort(transferDoneOn)
-                      )
-                    : content.profiles.partnerNotTransferred(partner.display_name ?? "")}
-                </p>
+              {iAmRentHolder && rentHolderId && (
+                <SettleTransferButton profileId={rentHolderId} amount={balance} />
               )}
-            </Card>
+            </>
+          ) : negative ? (
+            <p className="text-sm text-ink-muted">
+              {iAmRentHolder
+                ? content.profiles.partnerCoveredExtra(partnerName, formatMoney(abs))
+                : content.profiles.youCoveredExtra(formatMoney(abs))}
+            </p>
+          ) : (
+            <p className="text-sm text-positive">
+              {iAmRentHolder
+                ? content.profiles.allSettled
+                : content.profiles.depositNothing}
+            </p>
           )}
+        </Card>
+      )}
 
+      {hasMonthExpenses ? (
+        <>
           <Card>
             <div className="flex items-baseline justify-between">
               <span className="text-ink-muted text-sm">
@@ -201,6 +182,14 @@ export default async function DashboardPage({
             </div>
           </Card>
         </>
+      ) : (
+        !rentHolderId && (
+          <Card>
+            <p className="text-ink-muted text-sm">
+              {content.dashboard.nothingThisMonth}
+            </p>
+          </Card>
+        )
       )}
     </div>
   );
