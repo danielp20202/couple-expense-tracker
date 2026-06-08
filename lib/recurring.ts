@@ -1,14 +1,15 @@
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { monthBounds } from "@/lib/month";
 import type { RecurringExpense } from "@/lib/types";
 
 /**
- * Fill a month with its "fixed cost" expenses from the active recurring
- * templates.
+ * Add the month's fixed costs as expenses, skipping any that are ALREADY present
+ * in that month.
  *
- * Idempotent and resurrection-safe: we record each (template, month) pair in
- * `recurring_seeded` once it's been filled, so a fixed cost lands in a given
- * month at most once. If you later edit or delete that month's copy, it won't
- * silently come back.
+ * Dedupe is against the actual expense rows (matched by `recurring_id`), not a
+ * separate tracking table — so the manual "add fixed costs" button is safe to
+ * click repeatedly (no duplicates), and if you delete a fixed cost for a month
+ * you can re-add it simply by clicking again.
  *
  * Returns the number of expense rows inserted.
  */
@@ -19,21 +20,24 @@ export async function seedMonth(month: string): Promise<number> {
     .from("recurring_expenses")
     .select("*")
     .eq("active", true);
-
   const active = (templates ?? []) as RecurringExpense[];
   if (active.length === 0) return 0;
 
-  const { data: seededRows } = await supabase
-    .from("recurring_seeded")
+  // Which templates already have an expense in this month?
+  const { start, end } = monthBounds(month);
+  const { data: existing } = await supabase
+    .from("expenses")
     .select("recurring_id")
-    .eq("month", month);
+    .gte("date", start)
+    .lt("date", end)
+    .not("recurring_id", "is", null);
+  const present = new Set((existing ?? []).map((e) => e.recurring_id as string));
 
-  const seeded = new Set((seededRows ?? []).map((r) => r.recurring_id as string));
-  const toSeed = active.filter((t) => !seeded.has(t.id));
+  const toSeed = active.filter((t) => !present.has(t.id));
   if (toSeed.length === 0) return 0;
 
   const date = `${month}-01`;
-  const { error: insertErr } = await supabase.from("expenses").insert(
+  const { error } = await supabase.from("expenses").insert(
     toSeed.map((t) => ({
       amount: t.amount,
       expense_type_id: t.expense_type_id,
@@ -44,12 +48,6 @@ export async function seedMonth(month: string): Promise<number> {
       recurring_id: t.id,
     }))
   );
-  if (insertErr) return 0;
-
-  // Mark them seeded so they won't be regenerated for this month.
-  await supabase
-    .from("recurring_seeded")
-    .insert(toSeed.map((t) => ({ recurring_id: t.id, month })));
-
+  if (error) return 0;
   return toSeed.length;
 }
