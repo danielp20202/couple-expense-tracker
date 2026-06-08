@@ -25,13 +25,28 @@ function hue(name: string): number {
 export function Avatar({
   name,
   size = 48,
+  photoSrc,
   className,
 }: {
   name: string;
   size?: number;
+  /** Optional real photo. Falls back to initials disc if omitted or fails. */
+  photoSrc?: string;
   className?: string;
 }) {
   const h = hue(name);
+
+  if (photoSrc) {
+    return (
+      <img
+        src={photoSrc}
+        alt={name}
+        className={clsx("inline-block shrink-0 rounded-full object-cover object-top", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <span
       className={clsx(
