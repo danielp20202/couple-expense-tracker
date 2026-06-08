@@ -58,6 +58,22 @@ export default async function DashboardPage({
   const mine = summary.people.find((p) => p.profile.id === selectedId)!;
   const theirs = summary.people.find((p) => p.profile.id !== selectedId)!;
 
+  // Is the selected profile the rent holder — the person who pays the joint rent
+  // and receives the partner's share? They get a "contribution to rent" framing;
+  // the other person gets the "transfer to the joint account" framing.
+  const { data: jointRec } = await supabase
+    .from("recurring_expenses")
+    .select("paid_by")
+    .eq("paid_from", "joint");
+  const iAmRentHolder = (jointRec ?? []).some((r) => r.paid_by === selectedId);
+
+  const transferTitle = iAmRentHolder
+    ? content.profiles.rentContributionTitle
+    : content.profiles.yourTransferTitle;
+  const transferHelp = iAmRentHolder
+    ? content.profiles.rentContributionHelp(partner.display_name ?? "")
+    : content.profiles.yourTransferHelp;
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
@@ -87,9 +103,9 @@ export default async function DashboardPage({
         <>
           {/* Personalized headline: what YOU transfer, big; partner de-emphasized. */}
           <Card>
-            <SectionTitle>{content.profiles.yourTransferTitle}</SectionTitle>
+            <SectionTitle>{transferTitle}</SectionTitle>
             <p className="text-sm text-ink-muted mb-3">
-              {content.profiles.yourTransferHelp}
+              {transferHelp}
             </p>
             <div className="flex items-baseline justify-between">
               <span className="text-ink font-medium">

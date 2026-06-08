@@ -11,8 +11,8 @@
  * ========================================================================== */
 
 export const content = {
-  appName: "Our Expenses",
-  tagline: "Shared 50/50, settled every month",
+  appName: "Laura & Daniel",
+  tagline: "Our shared rent & expense tracker",
 
   nav: {
     dashboard: "Summary",
@@ -25,7 +25,7 @@ export const content = {
   dashboard: {
     title: "Monthly summary",
     totalLabel: "Total shared expenses",
-    paidPersonallyLabel: "Paid personally",
+    paidPersonallyLabel: "Paid using a personal credit/debit card",
     fairShareLabel: "Each person's share",
     transferTitle: "Transfer to the joint account",
     transferHelp:
@@ -125,10 +125,17 @@ export const content = {
     switch: "Switch",
     greeting: (name: string) => `Hi, ${name}`,
     youTag: "You",
+    partnerTransferLabel: (name: string) => `${name}'s transfer`,
+    // Shown to the person who transfers their share into the joint account (e.g. Daniel).
     yourTransferTitle: "What you transfer to the joint account",
     yourTransferHelp:
       "What you should move into the joint account every month so you've both covered an equal half.",
-    partnerTransferLabel: (name: string) => `${name}'s transfer`,
+    // Shown to the person who holds/pays the rent and receives the partner's share (e.g. Laura).
+    rentContributionTitle: "Your contribution to rent",
+    rentContributionHelp: (partner: string) =>
+      `Your share of this month's rent, after deducting the shared expenses you've already paid on your personal card. ${partner}'s transfer (shown below) is their share of the rent — move it back into your account once it arrives.`,
+    // Profile photos, reused by the picker and the switcher. Falls back to initials if absent.
+    photos: { Laura: "/images/laura_1.webp" } as Record<string, string>,
   },
 
   months: {

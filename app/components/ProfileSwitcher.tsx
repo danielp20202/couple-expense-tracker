@@ -16,7 +16,7 @@ export function ProfileSwitcher({ name }: { name: string }) {
       className="inline-flex items-center gap-2 rounded-pill bg-surface-muted px-2 py-1 text-sm text-ink hover:bg-border transition-colors"
       title={content.profiles.switch}
     >
-      <Avatar name={name} size={28} />
+      <Avatar name={name} size={28} photoSrc={content.profiles.photos[name]} />
       <span className="font-medium">{name}</span>
       <span className="text-ink-muted text-xs">{content.profiles.switch}</span>
     </Link>
