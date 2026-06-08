@@ -125,15 +125,16 @@ export const content = {
     switch: "Switch",
     greeting: (name: string) => `Hi, ${name}`,
     youTag: "You",
-    partnerTransferLabel: (name: string) => `${name}'s transfer`,
-    // Shown to the person who transfers their share into the joint account (e.g. Daniel).
-    yourTransferTitle: "What you transfer to the joint account",
-    yourTransferHelp:
-      "What you should move into the joint account every month so you've both covered an equal half.",
-    // Shown to the person who holds/pays the rent and receives the partner's share (e.g. Laura).
+    // Shown to the person who deposits their share into the joint account (e.g. Daniel).
+    yourTransferTitle: "What you deposit into the joint account",
+    yourTransferHelp: (rentPayer: string) =>
+      `Your half for this month, after the shared expenses you've already paid on your personal card. Deposit it into the joint account — ${rentPayer} pays the rent from there.`,
+    // Shown to the person who pays the rent and reclaims the partner's share (e.g. Laura).
     rentContributionTitle: "Your contribution to rent",
-    rentContributionHelp: (partner: string) =>
-      `Your share of this month's rent, after deducting the shared expenses you've already paid on your personal card. ${partner}'s transfer (shown below) is their share of the rent — move it back into your account once it arrives.`,
+    rentYourShareLabel: "Your share",
+    rentPartnerShareLabel: (partner: string) => `${partner}'s share`,
+    rentTransferInstruction:
+      "Transfer this amount from the joint account back into your own account.",
     // Profile photos, reused by the picker and the switcher. Falls back to initials if absent.
     photos: { Laura: "/images/laura_1.webp" } as Record<string, string>,
   },
