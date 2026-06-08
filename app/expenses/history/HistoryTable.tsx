@@ -139,52 +139,51 @@ export function HistoryTable({
                 }
               />
             ) : (
-              <li key={e.id} className="flex items-center gap-3 px-4 py-3">
+              <li key={e.id} className="flex items-start gap-3 px-4 py-3">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 shrink-0 accent-primary"
+                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
                   checked={selected.has(e.id)}
                   onChange={() => toggle(e.id)}
                   aria-label="Select entry"
                 />
-                <div className="w-14 shrink-0 text-sm text-ink-muted">
-                  {formatDateShort(e.date)}
-                </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-ink font-medium">
-                    {e.expense_type?.name ?? "—"}
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-medium text-ink">
+                      {e.expense_type?.name ?? "—"}
+                    </span>
+                    <Money value={formatMoney(Number(e.amount))} className="shrink-0" />
                   </div>
-                  <div className="truncate text-xs text-ink-muted">
-                    {nameFor(e.paid_by)} ·{" "}
+                  <div className="mt-0.5 text-xs text-ink-muted break-words">
+                    {formatDateShort(e.date)} · {nameFor(e.paid_by)} ·{" "}
                     {e.paid_from === "joint"
                       ? content.expenseForm.paidFromJoint
                       : content.expenseForm.paidFromPersonal}
                     {e.note ? ` · ${e.note}` : ""}
                   </div>
-                </div>
-                <Money value={formatMoney(Number(e.amount))} className="shrink-0" />
-                <div className="flex shrink-0 gap-1">
-                  <Button variant="ghost" onClick={() => setEditingId(e.id)}>
-                    {content.history.edit}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    disabled={pending}
-                    onClick={() => {
-                      if (!confirm(content.history.confirmDelete)) return;
-                      startTransition(async () => {
-                        setError(null);
-                        const res = await deleteExpense(e.id);
-                        if (res.error) {
-                          setError(res.error);
-                          return;
-                        }
-                        router.refresh();
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button variant="ghost" onClick={() => setEditingId(e.id)}>
+                      {content.history.edit}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      disabled={pending}
+                      onClick={() => {
+                        if (!confirm(content.history.confirmDelete)) return;
+                        startTransition(async () => {
+                          setError(null);
+                          const res = await deleteExpense(e.id);
+                          if (res.error) {
+                            setError(res.error);
+                            return;
+                          }
+                          router.refresh();
                       });
                     }}
                   >
                     {content.history.delete}
                   </Button>
+                  </div>
                 </div>
               </li>
             )
@@ -228,7 +227,7 @@ function EditRow({
 
   return (
     <li className="space-y-3 bg-surface-muted px-4 py-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input
           type="number"
           step="0.01"
