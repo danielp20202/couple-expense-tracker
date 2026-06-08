@@ -47,3 +47,12 @@ export interface RecurringExpense {
 export interface RecurringExpenseWithType extends RecurringExpense {
   expense_type: { name: string } | null;
 }
+
+/** Tracks whether a month's rent reimbursement has been transferred back. */
+export interface TransferStatus {
+  month: string;
+  profile_id: string;
+  done: boolean;
+  done_on: string | null; // YYYY-MM-DD
+  updated_at: string;
+}

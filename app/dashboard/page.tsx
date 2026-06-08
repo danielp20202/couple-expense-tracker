@@ -4,13 +4,14 @@ import { getCouple } from "@/lib/profiles";
 import { computeMonthlySummary } from "@/lib/calc";
 import { normalizeMonth, monthBounds } from "@/lib/month";
 import { getSelectedProfileId } from "@/lib/profile-session";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDateShort } from "@/lib/format";
 import { content } from "@/content";
 import type { Expense } from "@/lib/types";
 import { Card, Money, SectionTitle } from "@/app/components/ui";
 import { MonthSwitcher } from "@/app/components/MonthSwitcher";
 import { SeedFixedCostsButton } from "@/app/components/SeedFixedCostsButton";
 import { ProfileSwitcher } from "@/app/components/ProfileSwitcher";
+import { TransferDoneToggle } from "@/app/components/TransferDoneToggle";
 import { SetupNotice } from "@/app/components/SetupNotice";
 
 export const dynamic = "force-dynamic";
@@ -58,14 +59,29 @@ export default async function DashboardPage({
   const mine = summary.people.find((p) => p.profile.id === selectedId)!;
   const theirs = summary.people.find((p) => p.profile.id !== selectedId)!;
 
-  // Is the selected profile the rent holder — the person who pays the joint rent
-  // and receives the partner's share? They get a "contribution to rent" framing;
-  // the other person gets the "transfer to the joint account" framing.
+  // The rent holder pays the joint rent and reclaims the partner's share from
+  // the joint account. They get the "transfer back to your account" framing +
+  // the done checkbox; the other person gets the "deposit" framing.
   const { data: jointRec } = await supabase
     .from("recurring_expenses")
     .select("paid_by")
     .eq("paid_from", "joint");
-  const iAmRentHolder = (jointRec ?? []).some((r) => r.paid_by === selectedId);
+  const rentHolderId = (jointRec ?? []).map((r) => r.paid_by as string)[0] ?? null;
+  const iAmRentHolder = rentHolderId === selectedId;
+
+  // Shared status: has this month's reimbursement been transferred back yet?
+  let transferDone = false;
+  let transferDoneOn: string | null = null;
+  if (rentHolderId) {
+    const { data: st } = await supabase
+      .from("transfer_status")
+      .select("done, done_on")
+      .eq("month", month)
+      .eq("profile_id", rentHolderId)
+      .maybeSingle();
+    transferDone = st?.done ?? false;
+    transferDoneOn = (st?.done_on as string | null) ?? null;
+  }
 
   return (
     <div className="space-y-5">
@@ -94,34 +110,31 @@ export default async function DashboardPage({
         </Card>
       ) : (
         <>
-          {/* Personalized headline. Rent holder (e.g. Laura) sees her contribution
-              plus the partner's share to move back; everyone else sees their deposit. */}
+          {/* Rent holder (e.g. Laura) reclaims the partner's share from the joint
+              account and ticks it done; everyone else sees their deposit. */}
           {iAmRentHolder ? (
             <Card>
-              <SectionTitle>{content.profiles.rentContributionTitle}</SectionTitle>
+              <SectionTitle>{content.profiles.reclaimTitle}</SectionTitle>
+              <p className="text-sm text-ink-muted mb-3">
+                {content.profiles.reclaimHelp(partner.display_name ?? "")}
+              </p>
               <div className="flex items-baseline justify-between">
-                <span className="text-ink font-medium">
-                  {content.profiles.rentYourShareLabel}
+                <span className="text-ink-muted text-sm">
+                  {`${partner.display_name}'s share`}
                 </span>
                 <Money
-                  value={formatMoney(mine.transferToJoint)}
+                  value={formatMoney(theirs.transferToJoint)}
                   className="text-3xl font-bold"
                 />
               </div>
-              <div className="mt-3 border-t border-border pt-3">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-ink-muted text-sm">
-                    {content.profiles.rentPartnerShareLabel(partner.display_name ?? "")}
-                  </span>
-                  <Money
-                    value={formatMoney(theirs.transferToJoint)}
-                    className="font-semibold"
-                  />
-                </div>
-                <p className="mt-1 text-sm text-ink-muted">
-                  {content.profiles.rentTransferInstruction}
-                </p>
-              </div>
+              {rentHolderId && (
+                <TransferDoneToggle
+                  month={month}
+                  profileId={rentHolderId}
+                  done={transferDone}
+                  doneOn={transferDoneOn}
+                />
+              )}
             </Card>
           ) : (
             <Card>
@@ -141,6 +154,16 @@ export default async function DashboardPage({
                   className="text-3xl font-bold"
                 />
               </div>
+              {rentHolderId && (
+                <p className="mt-3 border-t border-border pt-3 text-sm text-ink-muted">
+                  {transferDone && transferDoneOn
+                    ? content.profiles.partnerTransferredOn(
+                        partner.display_name ?? "",
+                        formatDateShort(transferDoneOn)
+                      )
+                    : content.profiles.partnerNotTransferred(partner.display_name ?? "")}
+                </p>
+              )}
             </Card>
           )}
 
