@@ -34,19 +34,21 @@ Create with `git worktree add <path> <branch>`. Each worktree needs its own `npm
 
 - `main` is the stable branch; both agents merge and push here.
 - **App agent** last merged: fixed costs, history revamp (filters + bulk delete), profile landing (Netflix-style `/select` picker + per-profile personalized dashboard).
-- **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale). Branch `visuals/profile-picker` is pushed but **not yet merged** — awaiting approval.
+- **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale), and the **profile-picker styling** — `visuals/profile-picker` is now **merged to `main`** and deployed.
 
-### Visuals agent — branch `visuals/profile-picker` (pending merge)
+### Profile-picker hand-off — status (merged to `main`)
 
-Completed from the profile landing hand-off:
+From the profile landing hand-off:
 
-1. ✅ **Profile photos.** `Avatar.tsx` now accepts a `photoSrc` prop; falls back to initials disc. `laura_1.webp` wired to Laura.
-2. ✅ **Picker styling.** `/select` page has `ld_2.JPG` couple photo centred above profile tiles; cards use design system tokens.
-3. ✅ **Hide nav on `/select`.** Done via `middleware.ts` (injects `x-pathname` header) + conditional render in `app/layout.tsx`.
-4. ⏳ **Move ProfileSwitcher into the nav.** Not yet done — `app/components/ProfileSwitcher.tsx` still renders at the top of the dashboard. Visuals agent will handle in next session.
+1. ✅ **Profile photos.** `Avatar.tsx` accepts a `photoSrc` prop; falls back to the initials disc. `laura_1.webp` wired to Laura.
+2. ✅ **Picker styling.** `/select` shows the `ld_2.JPG` couple photo above the profile tiles; cards use design-system tokens.
+3. ✅ **Hide nav on `/select`.** Done via `middleware.ts` (`x-pathname` header) + conditional render in `app/layout.tsx`.
+4. ⏳ **Move ProfileSwitcher into the nav.** Still pending — `app/components/ProfileSwitcher.tsx` renders at the top of the dashboard for now. Visuals agent to handle next session.
+
+App agent has pulled this into the `couple-expense-tracker-app` worktree, verified the type-check and the integrated flow (local + production), and confirmed `middleware.ts` doesn't conflict with the profile routing.
 
 ### Note for App agent
 
-- `middleware.ts` is a new file (created by Visuals agent) — do not remove or modify the `x-pathname` header injection, it's needed for the nav suppression on `/select`.
+- `middleware.ts` (created by Visuals agent) — don't remove or modify the `x-pathname` header injection; it's needed for nav suppression on `/select`.
 - `app/select/page.tsx` was touched for styling only (className changes, photo map). The `selectProfile` action and data fetching are untouched.
-- `text-lg font-semibold` on transfer amounts in `app/dashboard/page.tsx` adds a 4th type size — worth fixing to `font-semibold` only when you next touch that file.
+- The earlier `text-lg` type-size nit on the dashboard is moot — the App agent rewrote that card for the personalized view, so no stray size remains.
