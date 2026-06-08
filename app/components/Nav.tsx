@@ -9,6 +9,7 @@ const links = [
   { href: "/dashboard", label: content.nav.dashboard },
   { href: "/expenses", label: content.nav.addExpense },
   { href: "/expenses/history", label: content.nav.history },
+  { href: "/fixed-costs", label: content.nav.fixedCosts },
   { href: "/expense-types", label: content.nav.types },
 ];
 
@@ -20,7 +21,7 @@ export function Nav() {
         <div className="flex items-center justify-between py-3">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-ink">
             {/* Swap /public/images/logo.png to change this — no code change needed. */}
-            <img src="/images/logo.png" alt="" className="h-6 w-6 rounded-control object-cover" />
+            <img src="/images/laura_1.webp" alt="" className="h-6 w-6 rounded-full object-cover" />
             {content.appName}
           </Link>
         </div>
