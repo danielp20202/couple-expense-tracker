@@ -15,6 +15,24 @@ account so you've both covered an equal half.
 > Visuals agent). Read [`CLAUDE.md`](./CLAUDE.md) for file ownership and the
 > branching rules before making changes.
 
+## Working with two agents (git worktrees)
+
+To keep the two agents from clobbering each other's checkout, each works in its
+**own git worktree** — separate directories that share the same `.git` history
+and remote, so each can sit on a different branch at the same time:
+
+| Directory | Agent | Branch |
+| --- | --- | --- |
+| `couple-expense-tracker` | Visuals | `visuals/*` |
+| `couple-expense-tracker-app` | App | `main`, `feature/*`, `fix/*` |
+
+Create a worktree with `git worktree add <path> <branch>` (e.g.
+`git worktree add ../couple-expense-tracker-app main`). Each worktree needs its
+own `npm install` and its own `.env.local` — both are gitignored, so they aren't
+shared. Commits, branches, and pushes are shared automatically; the only rule is
+**don't check out the same branch in two worktrees at once**. Merges to `main`
+from either worktree show up everywhere on the next `git fetch`/checkout.
+
 ## How the split works
 
 - Every expense is 50/50, so each person's fair share = monthly total ÷ 2.

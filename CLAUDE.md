@@ -17,6 +17,18 @@ Two agents are currently active on this project. Read this before making any cha
 - **Hands off the other agent's files.** If a change genuinely requires touching a file outside your ownership (e.g. adding a new copy string to `content.ts` for a visual element), coordinate first — leave a comment or note in your PR rather than editing silently.
 - **Commit frequently and keep branches short-lived.** The longer a branch lives, the higher the conflict risk.
 - **`content.ts` is shared** — both agents may need it. Whoever touches it should commit and merge quickly so the other agent isn't blocked.
+- **Work in your own worktree** (see below) so a branch checkout never changes files under the other agent.
+
+## Worktrees
+
+Each agent has its own git worktree — separate directories sharing one `.git`, so each can be on a different branch simultaneously without colliding:
+
+| Directory | Agent | Branch |
+|-----------|-------|--------|
+| `couple-expense-tracker` | Visuals | `visuals/*` |
+| `couple-expense-tracker-app` | App | `main`, `feature/*`, `fix/*` |
+
+Create with `git worktree add <path> <branch>`. Each worktree needs its own `npm install` and `.env.local` (both gitignored). Don't check out the same branch in two worktrees at once. Branches/commits/pushes are shared; merges to `main` appear in the other worktree after `git fetch`/checkout.
 
 ## Current state
 
