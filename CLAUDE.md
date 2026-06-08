@@ -12,6 +12,7 @@ Two agents are currently active on this project. Read this before making any cha
 ## Rules
 
 - **Never work directly on `main`.** Always branch, then merge when done.
+- **Announce your branch.** Whenever you report changes (to the human, or in a hand-off), include a quick note of which branch you're on — so it's always clear who is working where.
 - **Each agent merges its own branch.** Pull latest `main` before branching, and again before merging back.
 - **Hands off the other agent's files.** If a change genuinely requires touching a file outside your ownership (e.g. adding a new copy string to `content.ts` for a visual element), coordinate first — leave a comment or note in your PR rather than editing silently.
 - **Commit frequently and keep branches short-lived.** The longer a branch lives, the higher the conflict risk.
