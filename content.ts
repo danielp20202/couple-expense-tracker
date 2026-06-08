@@ -119,6 +119,18 @@ export const content = {
     empty: "No categories yet. Add your first one above.",
   },
 
+  profiles: {
+    pickTitle: "Who's tracking?",
+    pickSubtitle: "Choose your profile",
+    switch: "Switch",
+    greeting: (name: string) => `Hi, ${name}`,
+    youTag: "You",
+    yourTransferTitle: "What you transfer to the joint account",
+    yourTransferHelp:
+      "What you should move into the joint account every month so you've both covered an equal half.",
+    partnerTransferLabel: (name: string) => `${name}'s transfer`,
+  },
+
   months: {
     prev: "‹ Prev",
     next: "Next ›",
