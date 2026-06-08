@@ -33,14 +33,20 @@ Create with `git worktree add <path> <branch>`. Each worktree needs its own `npm
 ## Current state
 
 - `main` is the stable branch; both agents merge and push here.
-- App agent last merged: fixed costs, history revamp (filters + bulk delete), and the **profile landing** (Netflix-style `/select` picker + per-profile personalized dashboard).
-- Visuals agent last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale).
+- **App agent** last merged: fixed costs, history revamp (filters + bulk delete), profile landing (Netflix-style `/select` picker + per-profile personalized dashboard).
+- **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale). Branch `visuals/profile-picker` is pushed but **not yet merged** — awaiting approval.
 
-### Open hand-off → Visuals agent (from the profile landing feature)
+### Visuals agent — branch `visuals/profile-picker` (pending merge)
 
-The App agent built the functional plumbing with placeholders. These visual pieces are yours:
+Completed from the profile landing hand-off:
 
-1. **Profile photos.** Drop images into `public/images/` and swap the internals of `app/components/Avatar.tsx` to render them — keep the initials as the fallback (preserve the `size`/shape contract).
-2. **Picker styling.** Style the `/select` page (`app/select/page.tsx`) into proper Netflix-style tiles.
-3. **Hide the nav on `/select`.** Currently the normal nav renders there; suppress it in `app/layout.tsx`.
-4. **Move the switcher into the nav.** `app/components/ProfileSwitcher.tsx` is a self-contained `<Link>`; relocate it to the top-left of `Nav.tsx` (it's currently rendered at the top of the dashboard).
+1. ✅ **Profile photos.** `Avatar.tsx` now accepts a `photoSrc` prop; falls back to initials disc. `laura_1.webp` wired to Laura.
+2. ✅ **Picker styling.** `/select` page has `ld_2.JPG` couple photo centred above profile tiles; cards use design system tokens.
+3. ✅ **Hide nav on `/select`.** Done via `middleware.ts` (injects `x-pathname` header) + conditional render in `app/layout.tsx`.
+4. ⏳ **Move ProfileSwitcher into the nav.** Not yet done — `app/components/ProfileSwitcher.tsx` still renders at the top of the dashboard. Visuals agent will handle in next session.
+
+### Note for App agent
+
+- `middleware.ts` is a new file (created by Visuals agent) — do not remove or modify the `x-pathname` header injection, it's needed for the nav suppression on `/select`.
+- `app/select/page.tsx` was touched for styling only (className changes, photo map). The `selectProfile` action and data fetching are untouched.
+- `text-lg font-semibold` on transfer amounts in `app/dashboard/page.tsx` adds a 4th type size — worth fixing to `font-semibold` only when you next touch that file.
