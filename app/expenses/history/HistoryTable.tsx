@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { content } from "@/content";
 import type {
@@ -9,7 +9,11 @@ import type {
   PaidFrom,
   Profile,
 } from "@/lib/types";
-import { deleteExpense, updateExpense } from "@/app/actions/expenses";
+import {
+  deleteExpense,
+  deleteExpenses,
+  updateExpense,
+} from "@/app/actions/expenses";
 import { formatMoney, formatDateShort } from "@/lib/format";
 import { Button, Card, Input, Money, Select } from "@/app/components/ui";
 
@@ -26,6 +30,7 @@ export function HistoryTable({
 }) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +41,37 @@ export function HistoryTable({
         ? personB.display_name
         : "—";
 
+  const allIds = useMemo(() => expenses.map((e) => e.id), [expenses]);
+  const allSelected = allIds.length > 0 && selected.size === allIds.length;
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(allIds));
+  }
+
+  function bulkDelete() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (!confirm(content.history.confirmDeleteSelected(ids.length))) return;
+    startTransition(async () => {
+      setError(null);
+      const res = await deleteExpenses(ids);
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
+      setSelected(new Set());
+      router.refresh();
+    });
+  }
+
   if (expenses.length === 0) {
     return (
       <Card>
@@ -45,78 +81,117 @@ export function HistoryTable({
   }
 
   return (
-    <Card className="p-0 overflow-hidden">
-      {error && <p className="text-sm text-negative px-4 pt-3">{error}</p>}
-      <ul className="divide-y divide-border">
-        {expenses.map((e) =>
-          editingId === e.id ? (
-            <EditRow
-              key={e.id}
-              expense={e}
-              types={types}
-              personA={personA}
-              personB={personB}
-              pending={pending}
-              onCancel={() => setEditingId(null)}
-              onSave={(input) =>
-                startTransition(async () => {
-                  setError(null);
-                  const res = await updateExpense(e.id, input);
-                  if (res.error) {
-                    setError(res.error);
-                    return;
-                  }
-                  setEditingId(null);
-                  router.refresh();
-                })
-              }
-            />
-          ) : (
-            <li key={e.id} className="flex items-center gap-3 px-4 py-3">
-              <div className="w-14 shrink-0 text-sm text-ink-muted">
-                {formatDateShort(e.date)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-ink font-medium">
-                  {e.expense_type?.name ?? "—"}
-                </div>
-                <div className="truncate text-xs text-ink-muted">
-                  {nameFor(e.paid_by)} ·{" "}
-                  {e.paid_from === "joint"
-                    ? content.expenseForm.paidFromJoint
-                    : content.expenseForm.paidFromPersonal}
-                  {e.note ? ` · ${e.note}` : ""}
-                </div>
-              </div>
-              <Money value={formatMoney(Number(e.amount))} className="shrink-0" />
-              <div className="flex shrink-0 gap-1">
-                <Button variant="ghost" onClick={() => setEditingId(e.id)}>
-                  {content.history.edit}
-                </Button>
-                <Button
-                  variant="danger"
-                  disabled={pending}
-                  onClick={() => {
-                    if (!confirm(content.history.confirmDelete)) return;
-                    startTransition(async () => {
-                      setError(null);
-                      const res = await deleteExpense(e.id);
-                      if (res.error) {
-                        setError(res.error);
-                        return;
-                      }
-                      router.refresh();
-                    });
-                  }}
-                >
-                  {content.history.delete}
-                </Button>
-              </div>
-            </li>
-          )
+    <div className="space-y-3">
+      {/* Selection / bulk-delete bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-sm text-ink">
+          <input
+            type="checkbox"
+            className="h-4 w-4 accent-primary"
+            checked={allSelected}
+            onChange={toggleAll}
+          />
+          {content.history.selectAll}
+        </label>
+        {selected.size > 0 && (
+          <>
+            <span className="text-sm text-ink-muted">
+              {content.history.selectedCount(selected.size)}
+            </span>
+            <Button variant="danger" disabled={pending} onClick={bulkDelete}>
+              {content.history.deleteSelected}
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={pending}
+              onClick={() => setSelected(new Set())}
+            >
+              {content.history.clearSelection}
+            </Button>
+          </>
         )}
-      </ul>
-    </Card>
+      </div>
+
+      <Card className="p-0 overflow-hidden">
+        {error && <p className="text-sm text-negative px-4 pt-3">{error}</p>}
+        <ul className="divide-y divide-border">
+          {expenses.map((e) =>
+            editingId === e.id ? (
+              <EditRow
+                key={e.id}
+                expense={e}
+                types={types}
+                personA={personA}
+                personB={personB}
+                pending={pending}
+                onCancel={() => setEditingId(null)}
+                onSave={(input) =>
+                  startTransition(async () => {
+                    setError(null);
+                    const res = await updateExpense(e.id, input);
+                    if (res.error) {
+                      setError(res.error);
+                      return;
+                    }
+                    setEditingId(null);
+                    router.refresh();
+                  })
+                }
+              />
+            ) : (
+              <li key={e.id} className="flex items-center gap-3 px-4 py-3">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 shrink-0 accent-primary"
+                  checked={selected.has(e.id)}
+                  onChange={() => toggle(e.id)}
+                  aria-label="Select entry"
+                />
+                <div className="w-14 shrink-0 text-sm text-ink-muted">
+                  {formatDateShort(e.date)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-ink font-medium">
+                    {e.expense_type?.name ?? "—"}
+                  </div>
+                  <div className="truncate text-xs text-ink-muted">
+                    {nameFor(e.paid_by)} ·{" "}
+                    {e.paid_from === "joint"
+                      ? content.expenseForm.paidFromJoint
+                      : content.expenseForm.paidFromPersonal}
+                    {e.note ? ` · ${e.note}` : ""}
+                  </div>
+                </div>
+                <Money value={formatMoney(Number(e.amount))} className="shrink-0" />
+                <div className="flex shrink-0 gap-1">
+                  <Button variant="ghost" onClick={() => setEditingId(e.id)}>
+                    {content.history.edit}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    disabled={pending}
+                    onClick={() => {
+                      if (!confirm(content.history.confirmDelete)) return;
+                      startTransition(async () => {
+                        setError(null);
+                        const res = await deleteExpense(e.id);
+                        if (res.error) {
+                          setError(res.error);
+                          return;
+                        }
+                        router.refresh();
+                      });
+                    }}
+                  >
+                    {content.history.delete}
+                  </Button>
+                </div>
+              </li>
+            )
+          )}
+        </ul>
+      </Card>
+    </div>
   );
 }
 

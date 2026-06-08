@@ -7,6 +7,7 @@ import { content } from "@/content";
 import type { Expense } from "@/lib/types";
 import { Card, Money, SectionTitle } from "@/app/components/ui";
 import { MonthSwitcher } from "@/app/components/MonthSwitcher";
+import { SeedFixedCostsButton } from "@/app/components/SeedFixedCostsButton";
 import { SetupNotice } from "@/app/components/SetupNotice";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +49,9 @@ export default async function DashboardPage({
 
       <Card>
         <MonthSwitcher month={month} />
+        <div className="mt-3 border-t border-border pt-3">
+          <SeedFixedCostsButton month={month} />
+        </div>
       </Card>
 
       {!hasExpenses ? (
@@ -101,21 +105,6 @@ export default async function DashboardPage({
                 </div>
               ))}
             </div>
-          </Card>
-
-          <Card>
-            <SectionTitle>{content.dashboard.settledTitle}</SectionTitle>
-            {summary.direct ? (
-              <p className="text-ink">
-                {content.dashboard.owesDirectly(
-                  summary.direct.from.display_name ?? "",
-                  summary.direct.to.display_name ?? "",
-                  formatMoney(summary.direct.amount)
-                )}
-              </p>
-            ) : (
-              <p className="text-positive">{content.dashboard.settledNobody}</p>
-            )}
           </Card>
         </>
       )}

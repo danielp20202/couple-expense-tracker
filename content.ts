@@ -18,6 +18,7 @@ export const content = {
     dashboard: "Summary",
     addExpense: "Add expense",
     history: "History",
+    fixedCosts: "Fixed costs",
     types: "Categories",
   },
 
@@ -28,12 +29,41 @@ export const content = {
     fairShareLabel: "Each person's share",
     transferTitle: "Transfer to the joint account",
     transferHelp:
-      "What each person should move into the joint account so you've both covered an equal half.",
+      "What each person should move into the joint account every month.",
     settledTitle: "Direct settlement",
     settledNobody: "All square — nobody owes the other directly this month.",
     owesDirectly: (from: string, to: string, amount: string) =>
       `${from} owes ${to} ${amount} directly.`,
     nothingThisMonth: "No expenses logged for this month yet.",
+    addFixedCosts: "Add this month's fixed costs",
+    fixedCostsAdded: (n: number) =>
+      n === 0
+        ? "This month's fixed costs are already in."
+        : `Added ${n} fixed cost${n === 1 ? "" : "s"} to this month.`,
+  },
+
+  fixedCosts: {
+    title: "Fixed costs",
+    help: "Recurring monthly costs. Add them to a month from the Monthly summary, then edit or remove individual copies from History as needed.",
+    addTitle: "Add a fixed cost",
+    amount: "Amount",
+    category: "Category",
+    paidBy: "Who pays",
+    paidFrom: "Paid from",
+    personal: "Personal card",
+    joint: "Joint account",
+    add: "Add fixed cost",
+    edit: "Edit",
+    save: "Save",
+    cancel: "Cancel",
+    delete: "Delete",
+    pause: "Pause",
+    resume: "Resume",
+    paused: "(paused)",
+    confirmDelete:
+      "Delete this fixed cost? It won't be added to future months. Expenses already created from it stay.",
+    empty: "No fixed costs yet. Add your first one above.",
+    noTypes: "Add a category first before creating fixed costs.",
   },
 
   expenseForm: {
@@ -55,21 +85,25 @@ export const content = {
 
   history: {
     title: "Expense history",
-    empty: "No expenses for this month.",
-    cols: {
-      date: "Date",
-      type: "Category",
-      paidBy: "Paid by",
-      paidFrom: "Source",
-      amount: "Amount",
-      note: "Note",
-      actions: "",
-    },
+    empty: "No expenses found.",
     edit: "Edit",
     save: "Save",
     cancel: "Cancel",
     delete: "Delete",
     confirmDelete: "Delete this expense?",
+    // Filters & controls
+    monthFilterLabel: "Month",
+    allMonths: "All months",
+    perPageLabel: "Show",
+    perPageSuffix: "entries",
+    // Multi-select / bulk delete
+    selectAll: "Select all",
+    selectedCount: (n: number) => `${n} selected`,
+    deleteSelected: "Delete selected",
+    confirmDeleteSelected: (n: number) =>
+      `Delete ${n} selected ${n === 1 ? "entry" : "entries"}? This can't be undone.`,
+    clearSelection: "Clear",
+    showingRecent: (n: number) => `Showing the ${n} most recent entries.`,
   },
 
   types: {

@@ -11,6 +11,10 @@ account so you've both covered an equal half.
 > fine for a private, unadvertised deployment, but see the bottom of
 > `supabase-setup.sql` for how to lock it down when you add real auth.
 
+> **Working on this project?** Two agents collaborate here (an App agent and a
+> Visuals agent). Read [`CLAUDE.md`](./CLAUDE.md) for file ownership and the
+> branching rules before making changes.
+
 ## How the split works
 
 - Every expense is 50/50, so each person's fair share = monthly total ÷ 2.
@@ -18,10 +22,28 @@ account so you've both covered an equal half.
 - Money paid from the **joint account** is funded by both of you, so it isn't
   credited to either person individually.
 - Each person's transfer into the joint account = `fair share − what they paid
-  personally`. If someone overpaid their half, that's shown as a direct payment
-  the other person owes them instead.
+  personally`. If someone overpaid their half, their transfer shows as $0 and the
+  other person covers the joint shortfall.
 
-Logic lives in `lib/calc.ts`.
+Logic lives in `lib/calc.ts`. (It also computes a direct person-to-person
+settlement for the overpay case; that section is currently hidden on the
+dashboard but the math is intact if you want to re-add it.)
+
+## Fixed costs (recurring monthly costs)
+
+Recurring costs — rent, subscriptions, etc. — are stored as **templates** in the
+`recurring_expenses` table and managed on the **Fixed costs** page (amount,
+category, who pays, personal/joint).
+
+They are **not** added automatically. From the **Monthly summary**, the
+"Add this month's fixed costs" button materialises the active templates into the
+selected month as normal `expenses` rows (dated the 1st). From then on they're
+ordinary expenses you can edit or delete per month from **History**.
+
+Seeding is idempotent and resurrection-safe: each `(template, month)` pair is
+recorded in `recurring_seeded`, so a fixed cost lands in a given month at most
+once — deleting a copy won't make it silently reappear. Server logic lives in
+`lib/recurring.ts` and `app/actions/recurring.ts`.
 
 ## Customizing the look & copy
 
@@ -42,6 +64,12 @@ Logic lives in `lib/calc.ts`.
 3. Edit the **SEED** section — put your and your partner's real names.
 4. Run it. This creates the tables, RLS policies, the two linked profiles, and a
    starter set of categories.
+5. Then run [`supabase-migration-fixed-costs.sql`](./supabase-migration-fixed-costs.sql)
+   the same way. It adds the fixed-costs tables (`recurring_expenses`,
+   `recurring_seeded`) and the `expenses.recurring_id` column, trims the category
+   list, and — for this deployment — renames the seeded partner and seeds the
+   initial fixed costs. Every statement is guarded, so it's safe to re-run; edit
+   the seed values near the bottom for a different setup.
 
 ## 2. Run locally
 
@@ -75,9 +103,10 @@ Logic lives in `lib/calc.ts`.
 
 ## Pages
 
-| Route                 | What it does                                         |
-| --------------------- | ---------------------------------------------------- |
-| `/dashboard`          | Monthly summary + per-person transfer + settlement   |
-| `/expenses`           | Log a new expense                                    |
-| `/expenses/history`   | List/edit/delete expenses for the selected month     |
-| `/expense-types`      | Manage categories (add / rename / delete)            |
+| Route                 | What it does                                                        |
+| --------------------- | ------------------------------------------------------------------- |
+| `/dashboard`          | Monthly summary + per-person transfer + "add this month's fixed costs" |
+| `/expenses`           | Log a new expense                                                   |
+| `/expenses/history`   | Month filter, page size (10/25/50), inline edit, multi-select bulk delete |
+| `/fixed-costs`        | Manage recurring monthly costs (amount, category, payer, source)    |
+| `/expense-types`      | Manage categories (add / rename / delete)                           |
