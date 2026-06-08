@@ -26,7 +26,7 @@ export default async function SelectProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-10 py-16 px-page">
+    <div className="min-h-screen flex flex-col items-center gap-10 pt-[15vh] pb-16 px-page">
 
       {/* Couple photo — centred above the tiles */}
       <div className="flex flex-col items-center gap-5">
