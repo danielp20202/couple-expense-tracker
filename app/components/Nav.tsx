@@ -15,6 +15,7 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
+  if (pathname === "/select") return null;
   return (
     <nav className="bg-background border-b border-border">
       <div className="mx-auto max-w-3xl px-page">
