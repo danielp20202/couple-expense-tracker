@@ -45,6 +45,27 @@ recorded in `recurring_seeded`, so a fixed cost lands in a given month at most
 once — deleting a copy won't make it silently reappear. Server logic lives in
 `lib/recurring.ts` and `app/actions/recurring.ts`.
 
+## Profiles (Netflix-style switcher)
+
+On first visit you pick a profile (Daniel or Laura) on `/select`. The choice is
+stored in a cookie (`profile_id`) and **remembered** — return visits go straight
+to the dashboard. A "Switch" affordance returns to the picker.
+
+This is a **profile switcher, not authentication**: either person can pick
+either profile and both see the same data. It's a deliberate stepping stone —
+when real Supabase auth is added later, the selected profile simply becomes the
+logged-in user and these personalized views carry over.
+
+The dashboard renders from the selected profile's perspective: **your** transfer
+to the joint account is the headline figure, and your partner's is shown small /
+de-emphasized. Selection logic: `lib/profile-session.ts` (cookie read) and
+`app/actions/profile.ts` (`selectProfile` / `switchProfile`). The `Avatar`
+component renders initials on a colored disc as a fallback when there's no photo.
+
+> **Visuals hand-off (pending):** the picker styling, real profile photos, hiding
+> the nav on `/select`, and moving `<ProfileSwitcher>` into the nav top-left are
+> Visuals-agent tasks. See `CLAUDE.md` → Current state.
+
 ## Customizing the look & copy
 
 - **`theme.ts`** — all colors, fonts, radii, spacing. Change a value and it
@@ -105,7 +126,9 @@ once — deleting a copy won't make it silently reappear. Server logic lives in
 
 | Route                 | What it does                                                        |
 | --------------------- | ------------------------------------------------------------------- |
-| `/dashboard`          | Monthly summary + per-person transfer + "add this month's fixed costs" |
+| `/`                   | Redirects to `/dashboard` (remembered profile) or `/select`         |
+| `/select`             | Profile picker (Netflix-style); sets the `profile_id` cookie        |
+| `/dashboard`          | Monthly summary from the selected profile's view + "add fixed costs" |
 | `/expenses`           | Log a new expense                                                   |
 | `/expenses/history`   | Month filter, page size (10/25/50), inline edit, multi-select bulk delete |
 | `/fixed-costs`        | Manage recurring monthly costs (amount, category, payer, source)    |
