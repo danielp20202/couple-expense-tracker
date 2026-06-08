@@ -138,6 +138,8 @@ export const content = {
     reclaimTitle: "Transfer back to your account",
     reclaimHelp: "Transfer this amount from the joint account into your personal account.",
     settleButton: (amt: string) => `I've transferred ${amt} to my account`,
+    confirmSettle: (amt: string) =>
+      `Confirm you've transferred ${amt} from the joint account to your own? This logs the transfer and resets your balance.`,
     allSettled: "You're all settled up.",
     partnerCoveredExtra: (partner: string, amt: string) =>
       `${partner}'s covered ${amt} extra this cycle — it'll come off the next rent transfer.`,

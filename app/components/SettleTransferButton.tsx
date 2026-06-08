@@ -31,6 +31,7 @@ export function SettleTransferButton({
   const [error, setError] = useState<string | null>(null);
 
   function onClick() {
+    if (!confirm(content.profiles.confirmSettle(formatMoney(amount)))) return;
     startTransition(async () => {
       setError(null);
       const res = await createSettlement(profileId, amount, localToday());
