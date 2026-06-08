@@ -67,13 +67,6 @@ export default async function DashboardPage({
     .eq("paid_from", "joint");
   const iAmRentHolder = (jointRec ?? []).some((r) => r.paid_by === selectedId);
 
-  const transferTitle = iAmRentHolder
-    ? content.profiles.rentContributionTitle
-    : content.profiles.yourTransferTitle;
-  const transferHelp = iAmRentHolder
-    ? content.profiles.rentContributionHelp(partner.display_name ?? "")
-    : content.profiles.yourTransferHelp;
-
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
@@ -101,34 +94,55 @@ export default async function DashboardPage({
         </Card>
       ) : (
         <>
-          {/* Personalized headline: what YOU transfer, big; partner de-emphasized. */}
-          <Card>
-            <SectionTitle>{transferTitle}</SectionTitle>
-            <p className="text-sm text-ink-muted mb-3">
-              {transferHelp}
-            </p>
-            <div className="flex items-baseline justify-between">
-              <span className="text-ink font-medium">
-                {me.display_name}{" "}
-                <span className="text-ink-muted text-xs">
-                  ({content.profiles.youTag})
+          {/* Personalized headline. Rent holder (e.g. Laura) sees her contribution
+              plus the partner's share to move back; everyone else sees their deposit. */}
+          {iAmRentHolder ? (
+            <Card>
+              <SectionTitle>{content.profiles.rentContributionTitle}</SectionTitle>
+              <div className="flex items-baseline justify-between">
+                <span className="text-ink font-medium">
+                  {content.profiles.rentYourShareLabel}
                 </span>
-              </span>
-              <Money
-                value={formatMoney(mine.transferToJoint)}
-                className="text-3xl font-bold"
-              />
-            </div>
-            <div className="mt-2 flex items-baseline justify-between border-t border-border pt-2">
-              <span className="text-ink-muted text-sm">
-                {content.profiles.partnerTransferLabel(partner.display_name ?? "")}
-              </span>
-              <Money
-                value={formatMoney(theirs.transferToJoint)}
-                className="text-sm text-ink-muted"
-              />
-            </div>
-          </Card>
+                <Money
+                  value={formatMoney(mine.transferToJoint)}
+                  className="text-3xl font-bold"
+                />
+              </div>
+              <div className="mt-3 border-t border-border pt-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-ink-muted text-sm">
+                    {content.profiles.rentPartnerShareLabel(partner.display_name ?? "")}
+                  </span>
+                  <Money
+                    value={formatMoney(theirs.transferToJoint)}
+                    className="font-semibold"
+                  />
+                </div>
+                <p className="mt-1 text-sm text-ink-muted">
+                  {content.profiles.rentTransferInstruction}
+                </p>
+              </div>
+            </Card>
+          ) : (
+            <Card>
+              <SectionTitle>{content.profiles.yourTransferTitle}</SectionTitle>
+              <p className="text-sm text-ink-muted mb-3">
+                {content.profiles.yourTransferHelp(partner.display_name ?? "")}
+              </p>
+              <div className="flex items-baseline justify-between">
+                <span className="text-ink font-medium">
+                  {me.display_name}{" "}
+                  <span className="text-ink-muted text-xs">
+                    ({content.profiles.youTag})
+                  </span>
+                </span>
+                <Money
+                  value={formatMoney(mine.transferToJoint)}
+                  className="text-3xl font-bold"
+                />
+              </div>
+            </Card>
+          )}
 
           <Card>
             <div className="flex items-baseline justify-between">
