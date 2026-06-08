@@ -108,19 +108,47 @@ component renders initials on a colored disc as a fallback when there's no photo
    npm install
    npm run dev
    ```
-3. Open http://localhost:3000 — it redirects to the monthly summary.
+3. Open http://localhost:3000 — first visit shows the profile picker; after you
+   pick a profile it's remembered and you land on the dashboard.
 
-## 3. Deploy to Vercel + connect Supabase
+## 3. Deploy to Vercel (GitHub-managed)
 
-1. Push this project to a Git repo (GitHub/GitLab/Bitbucket).
-2. In Vercel: **Add New → Project**, import the repo. It auto-detects Next.js.
-3. Under **Environment Variables**, add the same two vars from your `.env.local`:
+Deployment is wired to GitHub: **every push to `main` auto-deploys** — no CLI
+needed.
+
+First-time setup:
+
+1. At [vercel.com/new](https://vercel.com/new), signed into the Vercel account
+   connected to your GitHub, **import** the repo. It auto-detects Next.js.
+   - If the repo isn't listed, use **Adjust GitHub App Permissions** to grant
+     Vercel access to it.
+2. Under **Environment Variables**, add the two values from your `.env.local`,
+   pointed at your Supabase project:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Deploy. Your existing Supabase project is "connected" simply by pointing
-   these env vars at it — no extra integration step is required for this app.
-5. (Optional) Use Vercel's official Supabase integration
-   (Vercel → Integrations → Supabase) to sync these env vars automatically.
+3. **Deploy.** Confirm **Settings → Git → Production Branch** is `main`.
+
+After that, the workflow is just: push to `main` → Vercel builds and deploys.
+Supabase is "connected" simply by pointing those env vars at it — no separate
+integration step. To change projects/keys, edit the env vars in **Settings →
+Environment Variables** and redeploy.
+
+### Migrating to a fresh Supabase project
+
+To move to a new Supabase project (e.g. personal → org, or work → personal):
+
+1. Create the new project, then run [`supabase-schema-only.sql`](./supabase-schema-only.sql)
+   in its SQL Editor — this builds the tables/RLS with **no** seed data.
+2. Copy your existing data across with the script:
+   ```bash
+   NEW_URL=https://NEW-REF.supabase.co NEW_KEY=sb_publishable_... \
+     node scripts/migrate-data.js
+   ```
+   It reads the **old** project from `.env.local` and copies every row to the
+   new one, preserving IDs and foreign-key links. (It aborts if the new project
+   already has data.)
+3. Update `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` in both
+   `.env.local` and Vercel, then redeploy.
 
 ## Pages
 
