@@ -15,7 +15,7 @@ export function Card({
   return (
     <div
       className={clsx(
-        "bg-surface border border-border rounded-card p-5 shadow-sm",
+        "bg-surface border border-border rounded-card p-5 shadow-[0_2px_8px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)]",
         className
       )}
     >
@@ -34,13 +34,13 @@ export function Button({
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const variants = {
     primary: "bg-primary text-ink-inverse hover:bg-primary-hover",
-    ghost: "bg-surface-muted text-ink hover:bg-border",
+    ghost: "border border-border text-ink-muted hover:bg-surface-muted",
     danger: "bg-surface text-negative border border-negative hover:bg-negative hover:text-ink-inverse",
   };
   return (
     <button
       className={clsx(
-        "rounded-control px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+        "rounded-pill px-5 py-2 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px]",
         variants[variant],
         className
       )}
@@ -77,7 +77,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 }
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-lg font-semibold text-ink mb-3">{children}</h2>;
+  return <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-muted mb-3">{children}</h2>;
 }
 
 export function Money({

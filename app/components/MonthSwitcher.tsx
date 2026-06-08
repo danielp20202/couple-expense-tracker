@@ -24,7 +24,7 @@ export function MonthSwitcher({ month }: { month: string }) {
       <Button variant="ghost" onClick={() => go(-1)}>
         {content.months.prev}
       </Button>
-      <span className="text-base font-semibold text-ink">
+      <span className="text-sm font-semibold text-ink">
         {formatMonthLabel(month)}
       </span>
       <Button variant="ghost" onClick={() => go(1)}>

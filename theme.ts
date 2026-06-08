@@ -21,38 +21,38 @@
 export const theme = {
   colors: {
     // Page + surfaces
-    background: "#f6f7fb", // app page background
-    surface: "#ffffff", // cards / panels
-    surfaceMuted: "#f0f2f8", // subtle filled areas, table header rows
-    border: "#e3e6ef", // hairline borders
+    background: "#FAF9F7", // warm off-white page background
+    surface: "#FFFFFF", // cards / panels
+    surfaceMuted: "#F3F1EE", // subtle hover states, secondary areas
+    border: "#E8E4DF", // hairline borders — barely visible
 
     // Text
-    ink: "#1c2330", // primary text
-    inkMuted: "#6b7280", // secondary / helper text
-    inkInverse: "#ffffff", // text on colored backgrounds
+    ink: "#1C1917", // primary text — warm near-black
+    inkMuted: "#78716C", // secondary / helper text
+    inkInverse: "#FFFFFF", // text on colored backgrounds
 
     // Brand / actions
-    primary: "#4f46e5", // main brand color (buttons, links, active state)
-    primaryHover: "#4338ca", // hover state for primary
-    accent: "#0ea5e9", // secondary highlight
+    primary: "#C2674A", // warm terracotta — buttons, active nav
+    primaryHover: "#A8553A", // hover state for primary
+    accent: "#7C9885", // muted sage green
 
     // Status
-    positive: "#16a34a", // money coming back to you / settled / good
-    negative: "#dc2626", // money you owe / destructive actions
-    warningBg: "#fef3c7", // soft callout background
+    positive: "#7C9885", // settled / all-clear — sage green
+    negative: "#C2674A", // errors / destructive — reuse primary
+    warningBg: "#FDF3E7", // soft warm warning background
   },
 
   // Font family names. Import the actual webfont in app/globals.css.
   fonts: {
-    sans: "'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif",
+    sans: "'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
     mono: "'JetBrains Mono', ui-monospace, monospace",
   },
 
   // Corner roundness
   radius: {
     card: "16px",
-    control: "10px", // buttons, inputs
-    pill: "9999px",
+    control: "12px", // inputs and form controls
+    pill: "9999px",  // buttons and nav pills
   },
 
   // A few custom spacing tokens (Tailwind's default scale still works too)

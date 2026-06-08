@@ -17,13 +17,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Nav />
-        <div
-          className="h-32 w-full flex items-end"
-          style={{ background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #38bdf8 100%)" }}
-        >
-          <div className="mx-auto max-w-3xl w-full px-page pb-4">
-            <p className="text-blue-200 text-xs font-medium tracking-widest uppercase mb-1">Our Expenses</p>
-            <p className="text-white text-xl font-semibold">Shared 50/50, settled every month</p>
+        <div className="relative h-40 w-full flex items-end" style={{ background: "linear-gradient(135deg, #3D2314 0%, #C2674A 60%, #E8956D 100%)" }}>
+          {/* fade bottom edge into page background */}
+          <div className="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-b from-transparent to-[#FAF9F7]/30 pointer-events-none" />
+          <div className="mx-auto max-w-3xl w-full px-page pb-5">
+            <p className="text-white/60 text-xs font-medium tracking-widest uppercase mb-1">Our Expenses</p>
+            <p className="text-white text-xl font-semibold tracking-tight">Shared 50/50, settled every month</p>
           </div>
         </div>
         <main className="mx-auto max-w-3xl px-page py-6">{children}</main>
