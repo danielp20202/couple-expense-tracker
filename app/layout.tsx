@@ -8,6 +8,12 @@ import { AppShell } from "@/app/components/AppShell";
 export const metadata: Metadata = {
   title: content.appName,
   description: content.tagline,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: content.appName,
+  },
 };
 
 export default function RootLayout({
