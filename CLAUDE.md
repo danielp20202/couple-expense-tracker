@@ -33,7 +33,7 @@ Create with `git worktree add <path> <branch>`. Each worktree needs its own `npm
 ## Current state
 
 - `main` is the stable branch; both agents merge and push here.
-- **App agent** last merged: fixed costs, history revamp (filters + bulk delete), profile landing (Netflix-style `/select` picker + per-profile personalized dashboard).
+- **App agent** last merged: fixed costs, history revamp, profile landing, the **settlement ledger** (settle button + cumulative carry-over balance), the mobile History fix, and the **Supabase → Neon database migration** (now live in production).
 - **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale), and the **profile-picker styling** — `visuals/profile-picker` is now **merged to `main`** and deployed.
 
 ### Profile-picker hand-off — status (merged to `main`)
@@ -47,28 +47,15 @@ From the profile landing hand-off:
 
 App agent has pulled this into the `couple-expense-tracker-app` worktree, verified the type-check and the integrated flow (local + production), and confirmed `middleware.ts` doesn't conflict with the profile routing.
 
-### Open hand-off → App agent: migrate database from Supabase to Neon
+### Database migration → Neon — ✅ DONE (App agent)
 
-**Why:** Supabase free tier pauses inactive projects after 7 days. Neon is also Postgres, has a free tier that doesn't pause, and the schema transfers almost unchanged.
+The Supabase → Neon migration (original hand-off: Supabase's free tier pauses after 7 days; Neon's doesn't) is **complete and live in production**:
 
-**Before writing any code:**
-1. Export current Supabase data as a safety net — Supabase dashboard → Table Editor → export each table as CSV (or `supabase db dump` via CLI). Data lives only in Supabase, not in git.
-2. Create a new Neon project at neon.tech (free tier is sufficient).
-3. Run the existing SQL schema against the Neon database (`supabase-setup.sql` + `supabase-migration-fixed-costs.sql`) to create the tables.
-4. Import the exported data into Neon.
-
-**Code changes needed (branch: `fix/neon-migration`):**
-- Swap the Supabase client in `lib/supabase/` for a Postgres-compatible client (e.g. `@neondatabase/serverless` or `postgres.js`). Neon supports the standard Postgres wire protocol so most query patterns stay the same.
-- Update `.env.local` with the new Neon connection string (`DATABASE_URL`). Update Vercel environment variables to match.
-- Remove or replace `@supabase/supabase-js` and `@supabase/ssr` imports — Neon doesn't use the Supabase client.
-- Test all pages locally against the Neon database before merging.
-
-**What does NOT change:**
-- All UI, components, design system — Visuals agent files are untouched.
-- Next.js routing, server actions structure — same patterns, just different DB client.
-- `content.ts`, `theme.ts`, `tailwind.config.ts` — untouched.
-
-**Only merge to `main` once:** local test passes, Vercel preview deployment works, and data looks correct in Neon's dashboard.
+- All queries rewritten from the Supabase query-builder to **raw parameterized SQL** via the Neon serverless driver — `lib/db.ts` (lazy client; `date`/`timestamp` returned as strings).
+- Data migrated to Neon (IDs/links preserved); production **cut over and verified** on `couple-expense-tracker-two.vercel.app`.
+- `@supabase/supabase-js` removed; `lib/supabase/*` and the one-off migration scripts deleted.
+- `DATABASE_URL` (Neon) set in Vercel for all environments; the client is lazy so the **build doesn't require it**.
+- The `supabase-*.sql` files remain only as historical reference (unused).
 
 ### Note for App agent
 

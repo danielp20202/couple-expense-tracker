@@ -1,15 +1,15 @@
 # Couple Expense Tracker
 
-A small Next.js (App Router) + Supabase web app for a couple sharing expenses
-50/50. It tracks every shared expense — whether paid from a personal card or the
-joint account — and each month tells each person how much to move into the joint
-account so you've both covered an equal half.
+A small Next.js (App Router) + **Neon (Postgres)** web app for a couple sharing
+expenses 50/50. It tracks every shared expense — whether paid from a personal
+card or the joint account — and keeps a running, carried-over balance of who
+owes whom, settled with a tap.
 
 > **Note on auth:** this version has **no login** (per the build brief). The two
-> people are seeded directly into the database and linked via `partner_id`. The
-> app uses Supabase's public anon key with permissive row-level security. That's
-> fine for a private, unadvertised deployment, but see the bottom of
-> `supabase-setup.sql` for how to lock it down when you add real auth.
+> people are seeded directly into the database and linked via `partner_id`. All
+> DB access is **server-side only** (server components + server actions) using a
+> Neon connection string (`DATABASE_URL`) — never exposed to the browser. Fine
+> for a private, unadvertised deployment; add real auth before opening it up.
 
 > **Working on this project?** Two agents collaborate here (an App agent and a
 > Visuals agent). Read [`CLAUDE.md`](./CLAUDE.md) for file ownership and the
@@ -35,17 +35,21 @@ from either worktree show up everywhere on the next `git fetch`/checkout.
 
 ## How the split works
 
-- Every expense is 50/50, so each person's fair share = monthly total ÷ 2.
+- Every expense is 50/50, so each person's fair share = total ÷ 2.
 - Money you paid **personally** counts toward your half.
-- Money paid from the **joint account** is funded by both of you, so it isn't
-  credited to either person individually.
-- Each person's transfer into the joint account = `fair share − what they paid
-  personally`. If someone overpaid their half, their transfer shows as $0 and the
-  other person covers the joint shortfall.
+- Laura fronts the rent; Daniel owes his half. The dashboard shows a single
+  **settlement balance** (the one money-flow between you), framed per profile:
+  Daniel sees what he deposits / owes, Laura sees what she reclaims.
+- The balance is **cumulative and carries across months**:
+  `balance = (all expenses ÷ 2) − (depositor's personal-paid) − (settlements)`.
+  Positive → the depositor owes / the rent holder reclaims; negative → the
+  depositor has covered extra and it rolls into the next rent.
+- Tapping **"I've transferred this"** logs a **settlement** (a row in History →
+  Transfers) and the balance drops accordingly. Settling, partial settling, and
+  over-settling all work; an unsettled remainder just carries forward.
 
-Logic lives in `lib/calc.ts`. (It also computes a direct person-to-person
-settlement for the overpay case; that section is currently hidden on the
-dashboard but the math is intact if you want to re-add it.)
+Core math: `computeMonthlySummary` (per-month total / share / paid-personally)
+and `computeSettlementBalance` (the cumulative balance) in `lib/calc.ts`.
 
 ## Fixed costs (recurring monthly costs)
 
@@ -58,10 +62,12 @@ They are **not** added automatically. From the **Monthly summary**, the
 selected month as normal `expenses` rows (dated the 1st). From then on they're
 ordinary expenses you can edit or delete per month from **History**.
 
-Seeding is idempotent and resurrection-safe: each `(template, month)` pair is
-recorded in `recurring_seeded`, so a fixed cost lands in a given month at most
-once — deleting a copy won't make it silently reappear. Server logic lives in
-`lib/recurring.ts` and `app/actions/recurring.ts`.
+Seeding is idempotent: `seedMonth` skips any template that already has an expense
+in that month (deduped against the actual `expenses` rows by `recurring_id`), so
+the button never duplicates — and if you delete a fixed cost for a month you can
+re-add it by clicking again. Server logic lives in `lib/recurring.ts` and
+`app/actions/recurring.ts`. (The legacy `recurring_seeded` table is no longer
+used.)
 
 ## Profiles (Netflix-style switcher)
 
@@ -71,7 +77,7 @@ to the dashboard. A "Switch" affordance returns to the picker.
 
 This is a **profile switcher, not authentication**: either person can pick
 either profile and both see the same data. It's a deliberate stepping stone —
-when real Supabase auth is added later, the selected profile simply becomes the
+when real auth is added later, the selected profile simply becomes the
 logged-in user and these personalized views carry over.
 
 The dashboard renders from the selected profile's perspective: **your** transfer
@@ -96,30 +102,28 @@ component renders initials on a colored disc as a fallback when there's no photo
 
 ---
 
-## 1. Set up the database (Supabase)
+## 1. Set up the database (Neon)
 
-1. In your Supabase project, open **SQL Editor → New query**.
-2. Paste the contents of [`supabase-setup.sql`](./supabase-setup.sql).
-3. Edit the **SEED** section — put your and your partner's real names.
-4. Run it. This creates the tables, RLS policies, the two linked profiles, and a
-   starter set of categories.
-5. Then run [`supabase-migration-fixed-costs.sql`](./supabase-migration-fixed-costs.sql)
-   the same way. It adds the fixed-costs tables (`recurring_expenses`,
-   `recurring_seeded`) and the `expenses.recurring_id` column, trims the category
-   list, and — for this deployment — renames the seeded partner and seeds the
-   initial fixed costs. Every statement is guarded, so it's safe to re-run; edit
-   the seed values near the bottom for a different setup.
+1. Create a project at [neon.tech](https://neon.tech) (free tier is fine).
+2. In Neon's **SQL Editor**, paste and run [`neon-schema.sql`](./neon-schema.sql).
+   This creates the tables and indexes (no seed data, no RLS — access is gated by
+   the server-side connection string).
+3. Seed the two people into `profiles` (and any starter categories / fixed costs),
+   e.g.:
+   ```sql
+   insert into profiles (display_name) values ('Daniel'), ('Laura');
+   update profiles a set partner_id = b.id from profiles b where a.id <> b.id;
+   ```
+4. Grab the **pooled** connection string from Neon's dashboard for the next step.
+
+> The legacy `supabase-*.sql` files remain in the repo only as history from the
+> original Supabase setup — they are no longer used.
 
 ## 2. Run locally
 
-1. Copy the env template and fill in your Supabase values (Project Settings →
-   API):
-   ```bash
-   cp .env.local.example .env.local
+1. Put your Neon connection string in `.env.local`:
    ```
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
+   DATABASE_URL=postgresql://USER:PASSWORD@ep-...-pooler.REGION.aws.neon.tech/DB?sslmode=require
    ```
 2. Install and start:
    ```bash
@@ -140,33 +144,15 @@ First-time setup:
    connected to your GitHub, **import** the repo. It auto-detects Next.js.
    - If the repo isn't listed, use **Adjust GitHub App Permissions** to grant
      Vercel access to it.
-2. Under **Environment Variables**, add the two values from your `.env.local`,
-   pointed at your Supabase project:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+2. Under **Environment Variables**, add **`DATABASE_URL`** (your Neon connection
+   string) for **all environments** (Production, Preview, Development). It's
+   required at runtime; the build itself doesn't need it (the Neon client is
+   created lazily, and all pages are `force-dynamic`).
 3. **Deploy.** Confirm **Settings → Git → Production Branch** is `main`.
 
-After that, the workflow is just: push to `main` → Vercel builds and deploys.
-Supabase is "connected" simply by pointing those env vars at it — no separate
-integration step. To change projects/keys, edit the env vars in **Settings →
+After that, the workflow is just: push to `main` → Vercel builds and deploys. To
+point at a different Neon database, edit `DATABASE_URL` in **Settings →
 Environment Variables** and redeploy.
-
-### Migrating to a fresh Supabase project
-
-To move to a new Supabase project (e.g. personal → org, or work → personal):
-
-1. Create the new project, then run [`supabase-schema-only.sql`](./supabase-schema-only.sql)
-   in its SQL Editor — this builds the tables/RLS with **no** seed data.
-2. Copy your existing data across with the script:
-   ```bash
-   NEW_URL=https://NEW-REF.supabase.co NEW_KEY=sb_publishable_... \
-     node scripts/migrate-data.js
-   ```
-   It reads the **old** project from `.env.local` and copies every row to the
-   new one, preserving IDs and foreign-key links. (It aborts if the new project
-   already has data.)
-3. Update `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` in both
-   `.env.local` and Vercel, then redeploy.
 
 ## Pages
 
