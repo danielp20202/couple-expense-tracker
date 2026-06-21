@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { content } from "@/content";
 import type { ExpenseType } from "@/lib/types";
@@ -8,14 +8,10 @@ import { TypesManager } from "./TypesManager";
 export const dynamic = "force-dynamic";
 
 export default async function ExpenseTypesPage() {
-  const supabase = getSupabaseServer();
   const couple = await getCouple();
-  const { data } = await supabase
-    .from("expense_types")
-    .select("*")
-    .order("name", { ascending: true });
-
-  const types = (data ?? []) as ExpenseType[];
+  const types = (await sql`
+    select * from expense_types order by name asc
+  `) as ExpenseType[];
 
   return (
     <div className="space-y-5">

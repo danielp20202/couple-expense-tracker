@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import type { PaidFrom } from "@/lib/types";
 
 export interface ExpenseInput {
@@ -19,51 +19,54 @@ function revalidateAll() {
 }
 
 export async function createExpense(input: ExpenseInput) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase.from("expenses").insert({
-    amount: input.amount,
-    expense_type_id: input.expense_type_id,
-    paid_by: input.paid_by,
-    paid_from: input.paid_from,
-    date: input.date,
-    note: input.note,
-  });
-  if (error) return { error: error.message };
+  try {
+    await sql`
+      insert into expenses (amount, expense_type_id, paid_by, paid_from, date, note)
+      values (${input.amount}, ${input.expense_type_id}, ${input.paid_by}, ${input.paid_from}, ${input.date}, ${input.note})
+    `;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function updateExpense(id: string, input: ExpenseInput) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase
-    .from("expenses")
-    .update({
-      amount: input.amount,
-      expense_type_id: input.expense_type_id,
-      paid_by: input.paid_by,
-      paid_from: input.paid_from,
-      date: input.date,
-      note: input.note,
-    })
-    .eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await sql`
+      update expenses set
+        amount = ${input.amount},
+        expense_type_id = ${input.expense_type_id},
+        paid_by = ${input.paid_by},
+        paid_from = ${input.paid_from},
+        date = ${input.date},
+        note = ${input.note}
+      where id = ${id}
+    `;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function deleteExpense(id: string) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase.from("expenses").delete().eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await sql`delete from expenses where id = ${id}`;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function deleteExpenses(ids: string[]) {
   if (ids.length === 0) return { error: null };
-  const supabase = getSupabaseServer();
-  const { error } = await supabase.from("expenses").delete().in("id", ids);
-  if (error) return { error: error.message };
+  try {
+    await sql`delete from expenses where id = any(${ids})`;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }

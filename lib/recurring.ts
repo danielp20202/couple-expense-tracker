@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { monthBounds } from "@/lib/month";
 import type { RecurringExpense } from "@/lib/types";
 
@@ -14,40 +14,32 @@ import type { RecurringExpense } from "@/lib/types";
  * Returns the number of expense rows inserted.
  */
 export async function seedMonth(month: string): Promise<number> {
-  const supabase = getSupabaseServer();
-
-  const { data: templates } = await supabase
-    .from("recurring_expenses")
-    .select("*")
-    .eq("active", true);
-  const active = (templates ?? []) as RecurringExpense[];
+  const active = (await sql`
+    select * from recurring_expenses where active = true
+  `) as RecurringExpense[];
   if (active.length === 0) return 0;
 
   // Which templates already have an expense in this month?
   const { start, end } = monthBounds(month);
-  const { data: existing } = await supabase
-    .from("expenses")
-    .select("recurring_id")
-    .gte("date", start)
-    .lt("date", end)
-    .not("recurring_id", "is", null);
-  const present = new Set((existing ?? []).map((e) => e.recurring_id as string));
+  const existing = (await sql`
+    select recurring_id from expenses
+    where date >= ${start} and date < ${end} and recurring_id is not null
+  `) as { recurring_id: string }[];
+  const present = new Set(existing.map((e) => e.recurring_id as string));
 
   const toSeed = active.filter((t) => !present.has(t.id));
   if (toSeed.length === 0) return 0;
 
   const date = `${month}-01`;
-  const { error } = await supabase.from("expenses").insert(
-    toSeed.map((t) => ({
-      amount: t.amount,
-      expense_type_id: t.expense_type_id,
-      paid_by: t.paid_by,
-      paid_from: t.paid_from,
-      date,
-      note: null,
-      recurring_id: t.id,
-    }))
-  );
-  if (error) return 0;
+  try {
+    for (const t of toSeed) {
+      await sql`
+        insert into expenses (amount, expense_type_id, paid_by, paid_from, date, note, recurring_id)
+        values (${t.amount}, ${t.expense_type_id}, ${t.paid_by}, ${t.paid_from}, ${date}, ${null}, ${t.id})
+      `;
+    }
+  } catch {
+    return 0;
+  }
   return toSeed.length;
 }

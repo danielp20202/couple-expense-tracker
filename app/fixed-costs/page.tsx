@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { content } from "@/content";
 import type { ExpenseType, RecurringExpenseWithType } from "@/lib/types";
@@ -19,17 +19,21 @@ export default async function FixedCostsPage() {
     );
   }
 
-  const supabase = getSupabaseServer();
-  const [{ data: typesData }, { data: recurringData }] = await Promise.all([
-    supabase.from("expense_types").select("*").order("name", { ascending: true }),
-    supabase
-      .from("recurring_expenses")
-      .select("*, expense_type:expense_types(name)")
-      .order("created_at", { ascending: true }),
+  const [typesData, recurringRows] = await Promise.all([
+    sql`select * from expense_types order by name asc`,
+    sql`
+      select r.*, et.name as expense_type_name
+      from recurring_expenses r
+      left join expense_types et on et.id = r.expense_type_id
+      order by r.created_at asc
+    `,
   ]);
 
-  const types = (typesData ?? []) as ExpenseType[];
-  const recurring = (recurringData ?? []) as RecurringExpenseWithType[];
+  const types = typesData as ExpenseType[];
+  const recurring = (recurringRows as any[]).map((r) => ({
+    ...r,
+    expense_type: r.expense_type_name ? { name: r.expense_type_name } : null,
+  })) as RecurringExpenseWithType[];
 
   return (
     <div className="space-y-5">

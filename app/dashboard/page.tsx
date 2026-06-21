@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { computeMonthlySummary, computeSettlementBalance } from "@/lib/calc";
 import type { BalanceExpense } from "@/lib/calc";
@@ -43,25 +43,24 @@ export default async function DashboardPage({
   const partner = personA.id === selectedId ? personB : personA;
 
   const { start, end } = monthBounds(month);
-  const supabase = getSupabaseServer();
 
   // Per-month expenses → Total / Fair share / Paid-personally cards.
   // Cumulative-through-month expenses + settlements → the carry-over balance.
   const [monthRes, allRes, setlRes, jointRes] = await Promise.all([
-    supabase.from("expenses").select("*").gte("date", start).lt("date", end),
-    supabase.from("expenses").select("amount, paid_from, paid_by").lt("date", end),
-    supabase.from("settlements").select("amount").lt("date", end),
-    supabase.from("recurring_expenses").select("paid_by").eq("paid_from", "joint"),
+    sql`select * from expenses where date >= ${start} and date < ${end}`,
+    sql`select amount, paid_from, paid_by from expenses where date < ${end}`,
+    sql`select amount from settlements where date < ${end}`,
+    sql`select paid_by from recurring_expenses where paid_from = 'joint'`,
   ]);
 
-  const expenses = (monthRes.data ?? []) as Expense[];
+  const expenses = monthRes as Expense[];
   const summary = computeMonthlySummary(expenses, personA, personB);
   const mine = summary.people.find((p) => p.profile.id === selectedId)!;
   const theirs = summary.people.find((p) => p.profile.id !== selectedId)!;
   const hasMonthExpenses = expenses.length > 0;
 
   // Rent holder = whoever pays the joint rent; depositor = their partner.
-  const rentHolderId = (jointRes.data ?? []).map((r) => r.paid_by as string)[0] ?? null;
+  const rentHolderId = (jointRes as { paid_by: string }[]).map((r) => r.paid_by as string)[0] ?? null;
   const depositorId =
     rentHolderId === null
       ? null
@@ -75,9 +74,9 @@ export default async function DashboardPage({
     depositorId === null
       ? 0
       : computeSettlementBalance(
-          (allRes.data ?? []) as BalanceExpense[],
+          allRes as BalanceExpense[],
           depositorId,
-          (setlRes.data ?? []) as { amount: number }[]
+          setlRes as { amount: number }[]
         );
 
   const positive = balance > 0;
