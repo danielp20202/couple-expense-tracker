@@ -47,6 +47,29 @@ From the profile landing hand-off:
 
 App agent has pulled this into the `couple-expense-tracker-app` worktree, verified the type-check and the integrated flow (local + production), and confirmed `middleware.ts` doesn't conflict with the profile routing.
 
+### Open hand-off → App agent: migrate database from Supabase to Neon
+
+**Why:** Supabase free tier pauses inactive projects after 7 days. Neon is also Postgres, has a free tier that doesn't pause, and the schema transfers almost unchanged.
+
+**Before writing any code:**
+1. Export current Supabase data as a safety net — Supabase dashboard → Table Editor → export each table as CSV (or `supabase db dump` via CLI). Data lives only in Supabase, not in git.
+2. Create a new Neon project at neon.tech (free tier is sufficient).
+3. Run the existing SQL schema against the Neon database (`supabase-setup.sql` + `supabase-migration-fixed-costs.sql`) to create the tables.
+4. Import the exported data into Neon.
+
+**Code changes needed (branch: `fix/neon-migration`):**
+- Swap the Supabase client in `lib/supabase/` for a Postgres-compatible client (e.g. `@neondatabase/serverless` or `postgres.js`). Neon supports the standard Postgres wire protocol so most query patterns stay the same.
+- Update `.env.local` with the new Neon connection string (`DATABASE_URL`). Update Vercel environment variables to match.
+- Remove or replace `@supabase/supabase-js` and `@supabase/ssr` imports — Neon doesn't use the Supabase client.
+- Test all pages locally against the Neon database before merging.
+
+**What does NOT change:**
+- All UI, components, design system — Visuals agent files are untouched.
+- Next.js routing, server actions structure — same patterns, just different DB client.
+- `content.ts`, `theme.ts`, `tailwind.config.ts` — untouched.
+
+**Only merge to `main` once:** local test passes, Vercel preview deployment works, and data looks correct in Neon's dashboard.
+
 ### Note for App agent
 
 - `middleware.ts` (created by Visuals agent) — don't remove or modify the `x-pathname` header injection; it's needed for nav suppression on `/select`.
