@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { monthBounds } from "@/lib/month";
 import { content } from "@/content";
@@ -38,39 +38,49 @@ export default async function HistoryPage({
     ? parsedLimit
     : DEFAULT_PER_PAGE;
 
-  const supabase = getSupabaseServer();
+  const bounds = month ? monthBounds(month) : null;
 
-  let query = supabase
-    .from("expenses")
-    .select("*, expense_type:expense_types(name)")
-    .order("date", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const expensesPromise = bounds
+    ? sql`
+        select e.*, et.name as expense_type_name
+        from expenses e
+        left join expense_types et on et.id = e.expense_type_id
+        where e.date >= ${bounds.start} and e.date < ${bounds.end}
+        order by e.date desc, e.created_at desc
+        limit ${limit}
+      `
+    : sql`
+        select e.*, et.name as expense_type_name
+        from expenses e
+        left join expense_types et on et.id = e.expense_type_id
+        order by e.date desc, e.created_at desc
+        limit ${limit}
+      `;
 
-  let settlementsQuery = supabase
-    .from("settlements")
-    .select("*")
-    .order("date", { ascending: false })
-    .limit(limit);
+  const settlementsPromise = bounds
+    ? sql`
+        select * from settlements
+        where date >= ${bounds.start} and date < ${bounds.end}
+        order by date desc
+        limit ${limit}
+      `
+    : sql`select * from settlements order by date desc limit ${limit}`;
 
-  if (month) {
-    const { start, end } = monthBounds(month);
-    query = query.gte("date", start).lt("date", end);
-    settlementsQuery = settlementsQuery.gte("date", start).lt("date", end);
-  }
-
-  const [expensesRes, settlementsRes, datesRes, typesRes] = await Promise.all([
-    query,
-    settlementsQuery,
-    supabase.from("expenses").select("date").order("date", { ascending: false }),
-    supabase.from("expense_types").select("*").order("name", { ascending: true }),
+  const [expensesRows, settlementsRows, datesRows, typesRows] = await Promise.all([
+    expensesPromise,
+    settlementsPromise,
+    sql`select distinct date from expenses order by date desc`,
+    sql`select * from expense_types order by name asc`,
   ]);
 
-  const expenses = (expensesRes.data ?? []) as ExpenseWithType[];
-  const settlements = (settlementsRes.data ?? []) as Settlement[];
-  const types = (typesRes.data ?? []) as ExpenseType[];
+  const expenses = (expensesRows as any[]).map((r) => ({
+    ...r,
+    expense_type: r.expense_type_name ? { name: r.expense_type_name } : null,
+  })) as ExpenseWithType[];
+  const settlements = settlementsRows as Settlement[];
+  const types = typesRows as ExpenseType[];
   const availableMonths = Array.from(
-    new Set(((datesRes.data ?? []) as { date: string }[]).map((r) => r.date.slice(0, 7)))
+    new Set((datesRows as { date: string }[]).map((r) => r.date.slice(0, 7)))
   );
 
   return (

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { seedMonth } from "@/lib/recurring";
 import type { PaidFrom } from "@/lib/types";
 
@@ -19,52 +19,51 @@ function revalidateAll() {
 }
 
 export async function createRecurring(input: RecurringInput) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase.from("recurring_expenses").insert({
-    amount: input.amount,
-    expense_type_id: input.expense_type_id,
-    paid_by: input.paid_by,
-    paid_from: input.paid_from,
-  });
-  if (error) return { error: error.message };
+  try {
+    await sql`
+      insert into recurring_expenses (amount, expense_type_id, paid_by, paid_from)
+      values (${input.amount}, ${input.expense_type_id}, ${input.paid_by}, ${input.paid_from})
+    `;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function updateRecurring(id: string, input: RecurringInput) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase
-    .from("recurring_expenses")
-    .update({
-      amount: input.amount,
-      expense_type_id: input.expense_type_id,
-      paid_by: input.paid_by,
-      paid_from: input.paid_from,
-    })
-    .eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await sql`
+      update recurring_expenses set
+        amount = ${input.amount},
+        expense_type_id = ${input.expense_type_id},
+        paid_by = ${input.paid_by},
+        paid_from = ${input.paid_from}
+      where id = ${id}
+    `;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function setRecurringActive(id: string, active: boolean) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase
-    .from("recurring_expenses")
-    .update({ active })
-    .eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await sql`update recurring_expenses set active = ${active} where id = ${id}`;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }
 
 export async function deleteRecurring(id: string) {
-  const supabase = getSupabaseServer();
-  const { error } = await supabase
-    .from("recurring_expenses")
-    .delete()
-    .eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await sql`delete from recurring_expenses where id = ${id}`;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
   revalidateAll();
   return { error: null };
 }

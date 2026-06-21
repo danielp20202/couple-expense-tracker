@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { sql } from "@/lib/db";
 import { content } from "@/content";
 import type { Profile } from "@/lib/types";
 
@@ -11,16 +11,20 @@ export async function getCouple(): Promise<{
   personA: Profile;
   personB: Profile;
 } | null> {
-  const supabase = getSupabaseServer();
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, display_name, partner_id")
-    .order("created_at", { ascending: true })
-    .limit(2);
+  let data: Profile[];
+  try {
+    data = (await sql`
+      select id, display_name, partner_id
+      from profiles
+      order by created_at asc
+      limit 2
+    `) as Profile[];
+  } catch {
+    return null;
+  }
+  if (data.length < 2) return null;
 
-  if (error || !data || data.length < 2) return null;
-
-  const [a, b] = data as Profile[];
+  const [a, b] = data;
   return {
     personA: { ...a, display_name: a.display_name ?? content.config.fallbackPersonA },
     personB: { ...b, display_name: b.display_name ?? content.config.fallbackPersonB },
