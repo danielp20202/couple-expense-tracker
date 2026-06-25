@@ -9,8 +9,7 @@ import { content } from "@/content";
 import type { Chore, ChoreCompletion } from "@/lib/types";
 import { SectionTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
-import { WeekSwitcher } from "@/app/components/WeekSwitcher";
-import { ChoreWeekView } from "./ChoreWeekView";
+import { ChoreCalendar } from "./ChoreCalendar";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +64,7 @@ export default async function ChoresPage({
         </Link>
       </div>
 
-      <p className="text-sm text-ink-muted">{content.chores.weekHelp}</p>
-
-      <ChoreWeekView
+      <ChoreCalendar
         week={week}
         days={days}
         occurrences={occurrences}

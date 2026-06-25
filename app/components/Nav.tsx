@@ -7,6 +7,7 @@ import { clsx } from "@/lib/clsx";
 
 const links = [
   { href: "/dashboard", label: content.nav.dashboard },
+  { href: "/chores", label: content.nav.chores },
   { href: "/expenses", label: content.nav.addExpense },
   { href: "/expenses/history", label: content.nav.history },
   { href: "/fixed-costs", label: content.nav.fixedCosts },
@@ -27,7 +28,10 @@ export function Nav() {
         </div>
         <div className="flex gap-1 overflow-x-auto pb-3 -mb-px">
           {links.map((l) => {
-            const active = pathname === l.href;
+            // Chores has sub-routes (/chores/manage) that should keep the tab active.
+            const active =
+              pathname === l.href ||
+              (l.href === "/chores" && pathname.startsWith("/chores/"));
             return (
               <Link
                 key={l.href}
