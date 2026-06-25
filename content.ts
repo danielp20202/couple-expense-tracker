@@ -41,6 +41,14 @@ export const content = {
       n === 0
         ? "This month's fixed costs are already in."
         : `Added ${n} fixed cost${n === 1 ? "" : "s"} to this month.`,
+    upcomingChoresTitle: "Upcoming chores",
+    upcomingNone: "Nothing coming up.",
+    viewChores: "Open chores →",
+  },
+
+  dates: {
+    today: "Today",
+    tomorrow: "Tomorrow",
   },
 
   fixedCosts: {

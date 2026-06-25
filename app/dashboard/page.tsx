@@ -4,16 +4,19 @@ import { getCouple } from "@/lib/profiles";
 import { computeMonthlySummary, computeSettlementBalance } from "@/lib/calc";
 import type { BalanceExpense } from "@/lib/calc";
 import { normalizeMonth, monthBounds } from "@/lib/month";
+import { todayISO, daysFrom } from "@/lib/week";
+import { occurrencesForWeek } from "@/lib/chores";
 import { getSelectedProfileId } from "@/lib/profile-session";
 import { formatMoney } from "@/lib/format";
 import { content } from "@/content";
-import type { Expense } from "@/lib/types";
+import type { Expense, Chore, ChoreCompletion } from "@/lib/types";
 import { Card, Money, SectionTitle } from "@/app/components/ui";
 import { MonthSwitcher } from "@/app/components/MonthSwitcher";
 import { SeedFixedCostsButton } from "@/app/components/SeedFixedCostsButton";
 import { ProfileSwitcher } from "@/app/components/ProfileSwitcher";
 import { SettleTransferButton } from "@/app/components/SettleTransferButton";
 import { SetupNotice } from "@/app/components/SetupNotice";
+import { UpcomingChores } from "./UpcomingChores";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +55,20 @@ export default async function DashboardPage({
     sql`select amount from settlements where date < ${end}`,
     sql`select paid_by from recurring_expenses where paid_from = 'joint'`,
   ]);
+
+  // Upcoming chores for the next two weeks, grouped per person below.
+  const today = todayISO();
+  const choreWindow = daysFrom(today, 14);
+  const choreWindowEnd = choreWindow[choreWindow.length - 1];
+  const [choreRows, choreCompletionRows] = await Promise.all([
+    sql`select * from chores where active = true`,
+    sql`select * from chore_completions where completed_on >= ${today} and completed_on <= ${choreWindowEnd}`,
+  ]);
+  const upcomingOccurrences = occurrencesForWeek(
+    choreRows as Chore[],
+    choreWindow,
+    choreCompletionRows as ChoreCompletion[]
+  );
 
   const expenses = monthRes as Expense[];
   const summary = computeMonthlySummary(expenses, personA, personB);
@@ -102,6 +119,14 @@ export default async function DashboardPage({
           <SeedFixedCostsButton month={month} />
         </div>
       </Card>
+
+      <UpcomingChores
+        occurrences={upcomingOccurrences}
+        personA={personA}
+        personB={personB}
+        selectedId={selectedId}
+        today={today}
+      />
 
       {/* Settlement / transfer card — cumulative, sign-aware. */}
       {rentHolderId && (

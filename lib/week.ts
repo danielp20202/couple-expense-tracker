@@ -56,3 +56,17 @@ export function weekDays(monday: string): string[] {
     return toISODate(d);
   });
 }
+
+/** Today as a local "YYYY-MM-DD" string. */
+export function todayISO(): string {
+  return toISODate(new Date());
+}
+
+/** `count` consecutive "YYYY-MM-DD" dates starting at (and including) `startISO`. */
+export function daysFrom(startISO: string, count: number): string[] {
+  const start = parseDate(startISO);
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    return toISODate(d);
+  });
+}
