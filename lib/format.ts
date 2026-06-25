@@ -29,3 +29,17 @@ export function formatDateShort(date: string): string {
     day: "numeric",
   });
 }
+
+/** Monday "2026-06-22" -> "Jun 22 – 28" (the Mon–Sun span of that week). */
+export function formatWeekLabel(monday: string): string {
+  const [y, m, d] = monday.split("-").map(Number);
+  const start = new Date(y, m - 1, d);
+  const end = new Date(y, m - 1, d + 6);
+  const startStr = start.toLocaleDateString(locale, { month: "short", day: "numeric" });
+  const sameMonth = start.getMonth() === end.getMonth();
+  const endStr = end.toLocaleDateString(locale, {
+    month: sameMonth ? undefined : "short",
+    day: "numeric",
+  });
+  return `${startStr} – ${endStr}`;
+}

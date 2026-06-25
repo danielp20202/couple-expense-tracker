@@ -56,3 +56,38 @@ export interface Settlement {
   date: string; // YYYY-MM-DD
   created_at: string;
 }
+
+/** How often a chore repeats. */
+export type ChoreRecurrence = "once" | "daily" | "weekly" | "monthly";
+
+/** A household chore definition. Occurrences are computed per week from the
+ *  recurrence rule (see lib/chores.ts), not stored. */
+export interface Chore {
+  id: string;
+  name: string;
+  assigned_to: string | null; // profile id; null = unassigned / either
+  recurrence: ChoreRecurrence;
+  weekdays: number[]; // 0=Sun..6=Sat, used when recurrence = 'weekly'
+  day_of_month: number | null; // 1..31, used when recurrence = 'monthly'
+  start_date: string; // YYYY-MM-DD anchor; occurrences only on/after this
+  active: boolean;
+  created_at: string;
+}
+
+/** A logged completion of a specific chore occurrence (chore_id + date). */
+export interface ChoreCompletion {
+  id: string;
+  chore_id: string;
+  completed_by: string | null;
+  completed_on: string; // YYYY-MM-DD
+  created_at: string;
+}
+
+/** A single occurrence of a chore on a given date, with its completion state.
+ *  Built in memory for the displayed week. */
+export interface ChoreOccurrence {
+  chore: Chore;
+  date: string; // YYYY-MM-DD
+  done: boolean;
+  completed_by: string | null;
+}
