@@ -78,6 +78,17 @@ export async function updateChore(id: string, input: ChoreInput) {
   return { error: null };
 }
 
+/** Lightweight reassign used by the calendar view (avatar → person menu). */
+export async function setChoreAssignee(id: string, assignedTo: string | null) {
+  try {
+    await sql`update chores set assigned_to = ${assignedTo} where id = ${id}`;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+  revalidateAll();
+  return { error: null };
+}
+
 export async function setChoreActive(id: string, active: boolean) {
   try {
     await sql`update chores set active = ${active} where id = ${id}`;

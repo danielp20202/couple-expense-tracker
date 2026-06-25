@@ -41,9 +41,6 @@ export const content = {
       n === 0
         ? "This month's fixed costs are already in."
         : `Added ${n} fixed cost${n === 1 ? "" : "s"} to this month.`,
-    choresLinkTitle: "Household chores",
-    choresLinkHelp: "See who's doing what this week and check things off.",
-    choresLinkCta: "Open chores →",
   },
 
   fixedCosts: {
@@ -198,6 +195,26 @@ export const content = {
       monthly: "Monthly",
     } as Record<string, string>,
     weekdayShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    weekdayLong: [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+    // Calendar view — inline create + quick reassign
+    newChore: "New chore",
+    addOn: (day: string) => `Add to ${day}`,
+    addCta: "Add",
+    close: "Close",
+    repeatLabel: "Repeat",
+    repeatOnce: "Just this day",
+    repeatEvery: (weekday: string) => `Every ${weekday}`,
+    repeatDaily: "Every day",
+    assignToYou: "Me",
+    reassignHint: "Tap a chore's avatar to reassign it.",
     // Compact recurrence summary shown on each chore row.
     recurrenceSummary: (
       recurrence: string,

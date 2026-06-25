@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
@@ -103,18 +102,6 @@ export default async function DashboardPage({
           <SeedFixedCostsButton month={month} />
         </div>
       </Card>
-
-      <Link href="/chores" className="block">
-        <Card className="flex items-center justify-between gap-3 transition-colors hover:bg-surface-muted">
-          <div>
-            <p className="font-medium text-ink">{content.dashboard.choresLinkTitle}</p>
-            <p className="text-sm text-ink-muted">{content.dashboard.choresLinkHelp}</p>
-          </div>
-          <span className="shrink-0 text-sm font-medium text-primary">
-            {content.dashboard.choresLinkCta}
-          </span>
-        </Card>
-      </Link>
 
       {/* Settlement / transfer card — cumulative, sign-aware. */}
       {rentHolderId && (
