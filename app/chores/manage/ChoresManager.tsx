@@ -92,7 +92,10 @@ export function ChoresManager({ chores, personA, personB }: Props) {
                   />
                 </li>
               ) : (
-                <li key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+                <li
+                  key={c.id}
+                  className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1"
+                >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span
@@ -115,7 +118,7 @@ export function ChoresManager({ chores, personA, personB }: Props) {
                       )}
                     </p>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1 shrink-0">
                     <Button variant="ghost" onClick={() => setEditingId(c.id)}>
                       {content.chores.edit}
                     </Button>

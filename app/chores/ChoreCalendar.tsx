@@ -87,7 +87,7 @@ export function ChoreCalendar({
     <div className="space-y-4">
       <Card>
         <WeekSwitcher week={week} />
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
+        <div className="mt-3 space-y-2 border-t border-border pt-3 sm:flex sm:items-center sm:justify-between sm:gap-2 sm:space-y-0">
           <div className="flex gap-1">
             <FilterTab active={filter === "everyone"} onClick={() => setFilter("everyone")}>
               {content.chores.filterEveryone}
@@ -96,7 +96,10 @@ export function ChoreCalendar({
               {content.chores.filterMine}
             </FilterTab>
           </div>
-          <Button onClick={() => setAddDay(todayStr ?? days[0])}>
+          <Button
+            className="w-full whitespace-nowrap sm:w-auto"
+            onClick={() => setAddDay(todayStr ?? days[0])}
+          >
             + {content.chores.newChore}
           </Button>
         </div>
@@ -107,13 +110,18 @@ export function ChoreCalendar({
         {days.map((date) => {
           const items = byDay.get(date) ?? [];
           const isToday = date === todayStr;
+          // On the current week, days already gone by just clutter the top of
+          // the mobile list (and bury today / a freshly added chore). Hide them
+          // on mobile; the full 7-column week still shows on desktop.
+          const isPast = todayStr !== null && date < todayStr;
           const dow = content.chores.weekdayShort[parseDate(date).getDay()];
           const dayNum = Number(date.slice(8, 10));
           return (
             <div
               key={date}
               className={clsx(
-                "flex flex-col rounded-card border bg-surface",
+                "flex-col rounded-card border bg-surface",
+                isPast ? "hidden md:flex" : "flex",
                 isToday ? "border-primary" : "border-border"
               )}
             >
