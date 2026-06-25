@@ -20,6 +20,7 @@ export const content = {
     history: "History",
     fixedCosts: "Fixed costs",
     types: "Categories",
+    chores: "Chores",
   },
 
   dashboard: {
@@ -40,6 +41,9 @@ export const content = {
       n === 0
         ? "This month's fixed costs are already in."
         : `Added ${n} fixed cost${n === 1 ? "" : "s"} to this month.`,
+    choresLinkTitle: "Household chores",
+    choresLinkHelp: "See who's doing what this week and check things off.",
+    choresLinkCta: "Open chores →",
   },
 
   fixedCosts: {
@@ -149,9 +153,76 @@ export const content = {
     photos: { Laura: "/images/laura_1.webp" } as Record<string, string>,
   },
 
+  chores: {
+    title: "Chores",
+    weekHelp: "Tap a chore to check it off. The week shows everything that recurs.",
+    manageLink: "Manage chores",
+    backToWeek: "‹ Back to the week",
+    // Week-view filter
+    filterMine: "Mine",
+    filterEveryone: "Everyone",
+    unassigned: "Anyone",
+    noneToday: "—",
+    emptyWeek: "Nothing scheduled this week. Add a chore to get started.",
+    emptyWeekMine: "Nothing assigned to you this week.",
+    doneBy: (name: string) => `Done by ${name}`,
+    done: "Done",
+    // Manage page
+    manageTitle: "Manage chores",
+    manageHelp:
+      "Create the chores you want to track. Most repeat — pick how often and who's responsible. They'll show up on the week view.",
+    addTitle: "Add a chore",
+    name: "Chore",
+    namePlaceholder: "e.g. Clean the bathroom",
+    assignedTo: "Assigned to",
+    recurrence: "Repeats",
+    startDate: "Starting",
+    weekdays: "On which days",
+    dayOfMonth: "Day of month",
+    add: "Add chore",
+    edit: "Edit",
+    save: "Save",
+    cancel: "Cancel",
+    delete: "Delete",
+    pause: "Pause",
+    resume: "Resume",
+    paused: "(paused)",
+    confirmDelete:
+      "Delete this chore? Its completion history will be removed too. This can't be undone.",
+    empty: "No chores yet. Add your first one above.",
+    // Labels
+    recurrenceLabels: {
+      once: "One-off",
+      daily: "Every day",
+      weekly: "Weekly",
+      monthly: "Monthly",
+    } as Record<string, string>,
+    weekdayShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    // Compact recurrence summary shown on each chore row.
+    recurrenceSummary: (
+      recurrence: string,
+      weekdayNames: string[],
+      dayOfMonth: number | null
+    ): string => {
+      if (recurrence === "once") return "One-off";
+      if (recurrence === "daily") return "Every day";
+      if (recurrence === "weekly")
+        return weekdayNames.length ? weekdayNames.join(", ") : "Weekly";
+      if (recurrence === "monthly")
+        return dayOfMonth ? `Day ${dayOfMonth} each month` : "Monthly";
+      return "";
+    },
+  },
+
   months: {
     prev: "‹ Prev",
     next: "Next ›",
+  },
+
+  weeks: {
+    prev: "‹ Prev",
+    next: "Next ›",
+    thisWeek: "This week",
   },
 
   // -- Formatting + partner config ------------------------------------------

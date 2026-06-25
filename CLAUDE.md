@@ -2,6 +2,8 @@
 
 Two agents are currently active on this project. Read this before making any changes.
 
+> **Pending tasks and hand-off messages live in [`HANDOFF.md`](./HANDOFF.md).** Check it at the start of every session and update it when you complete or add items.
+
 ## Agent roles
 
 | Agent | Owns | Branch prefix |

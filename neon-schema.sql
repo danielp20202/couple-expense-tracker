@@ -58,3 +58,32 @@ create table if not exists settlements (
   created_at  timestamptz not null default now()
 );
 create index if not exists settlements_date_idx on settlements (date);
+
+-- ----------------------------------------------------------------------------
+-- Household chores. A `chore` is a (usually recurring) definition; occurrences
+-- are computed on the fly per week from the recurrence rule (see lib/chores.ts)
+-- rather than materialized. A `chore_completion` records that a specific
+-- occurrence (chore_id + the occurrence date) was done, by whom and when.
+-- ----------------------------------------------------------------------------
+create table if not exists chores (
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  assigned_to  uuid references profiles (id),            -- null = unassigned / either
+  recurrence   text not null default 'weekly'
+                 check (recurrence in ('once', 'daily', 'weekly', 'monthly')),
+  weekdays     int[] not null default '{}',              -- 0=Sun..6=Sat, for 'weekly'
+  day_of_month int,                                      -- 1..31, for 'monthly'
+  start_date   date not null default current_date,       -- anchor; occurrences only on/after
+  active       boolean not null default true,
+  created_at   timestamptz not null default now()
+);
+
+create table if not exists chore_completions (
+  id           uuid primary key default gen_random_uuid(),
+  chore_id     uuid not null references chores (id) on delete cascade,
+  completed_by uuid references profiles (id),
+  completed_on date not null,                             -- the occurrence date
+  created_at   timestamptz not null default now(),
+  unique (chore_id, completed_on)                         -- one completion per occurrence
+);
+create index if not exists chore_completions_date_idx on chore_completions (completed_on);
