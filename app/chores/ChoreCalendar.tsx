@@ -255,7 +255,7 @@ export function ChoreCalendar({
 
       {empty && (
         <p className="text-center text-sm text-ink-muted">
-          {filter === "mine" ? content.chores.emptyWeekMine : content.chores.reassignHint}
+          {filter === "mine" ? content.chores.emptyWeekMine : content.chores.emptyWeek}
         </p>
       )}
 
