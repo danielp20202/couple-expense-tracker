@@ -16,7 +16,7 @@ For stable rules and file ownership, see [`CLAUDE.md`](./CLAUDE.md).
 
 ## Pending for App agent
 
-- [ ] **Apply the chores schema to Neon, then verify + merge** — `feature/chores` adds two tables (`chores`, `chore_completions`, see `neon-schema.sql`). They must be created in the Neon DB **before** merging to `main` (main auto-deploys; `/chores` 500s without the tables). After applying: run the dev server, create a couple of chores, toggle completions, then merge.
+_Nothing pending._
 
 ---
 
@@ -24,6 +24,7 @@ For stable rules and file ownership, see [`CLAUDE.md`](./CLAUDE.md).
 
 | Date | Agent | Item |
 |------|-------|------|
+| 2026-06-24 | App | Household chores tracker — recurring chores, assignment, week view + completion toggle (`feature/chores` → `main`). Schema applied to Neon. |
 | 2026-06-21 | Visuals | Profile-picker styling (`visuals/profile-picker` → merged to `main`) |
 | 2026-06-21 | Visuals | Hide nav on `/select` via `middleware.ts` + `layout.tsx` |
 | 2026-06-21 | App | Settlement ledger (settle button + cumulative carry-over balance) |
