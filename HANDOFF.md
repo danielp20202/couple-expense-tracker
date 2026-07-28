@@ -25,6 +25,8 @@ _Nothing pending._
 
 | Date | Agent | Item |
 |------|-------|------|
+| 2026-06-25 | App | Chores **mobile responsiveness fixes** — "+ New chore" button full-width on its own row, current week starts at today on mobile (past days hidden), manage rows stack so long names don't overlap the buttons (`fix/chores-mobile-responsive` → `main`). |
+| 2026-06-25 | App | **Upcoming chores per person** on the Summary tab (`feature/dashboard-upcoming-chores` → `main`). |
 | 2026-06-24 | App | Chores **week-calendar redesign** — nav tab, responsive 7-day calendar grid (stacked mobile / 7-col desktop), one-tap complete, inline avatar reassign, per-day quick-add sheet (`feature/chores-calendar` → `main`). |
 | 2026-06-24 | App | Household chores tracker — recurring chores, assignment, week view + completion toggle (`feature/chores` → `main`). Schema applied to Neon. |
 | 2026-06-21 | Visuals | Profile-picker styling (`visuals/profile-picker` → merged to `main`) |
