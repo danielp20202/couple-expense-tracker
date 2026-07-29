@@ -18,6 +18,7 @@ import {
   type RecurringInput,
 } from "@/app/actions/recurring";
 import { Button, Card, Label, Money, Select } from "@/app/components/ui";
+import { SplitPicker, pctAOf } from "@/app/components/SplitPicker";
 
 interface Props {
   recurring: RecurringExpenseWithType[];
@@ -97,6 +98,7 @@ export function FixedCostsManager({ recurring, types, personA, personB }: Props)
                       expense_type_id: r.expense_type_id ?? types[0]?.id ?? "",
                       paid_by: r.paid_by,
                       paid_from: r.paid_from,
+                      split_pct_a: pctAOf(r, personA.id),
                     }}
                     onCancel={() => setEditingId(null)}
                     onSubmit={(input) =>
@@ -131,6 +133,13 @@ export function FixedCostsManager({ recurring, types, personA, personB }: Props)
                       {r.paid_from === "joint"
                         ? content.fixedCosts.joint
                         : content.fixedCosts.personal}
+                      {pctAOf(r, personA.id) !== 50 &&
+                        ` · ${content.split.display(
+                          personA.display_name ?? "",
+                          pctAOf(r, personA.id),
+                          personB.display_name ?? "",
+                          Math.round((100 - pctAOf(r, personA.id)) * 100) / 100
+                        )}`}
                     </p>
                   </div>
                   <Money value={formatMoney(Number(r.amount))} className="font-semibold" />
@@ -192,6 +201,7 @@ function RecurringFields({
     expense_type_id: string;
     paid_by: string;
     paid_from: PaidFrom;
+    split_pct_a: number;
   };
   onSubmit: (input: RecurringInput, reset: () => void) => void;
   onCancel?: () => void;
@@ -204,6 +214,7 @@ function RecurringFields({
   const [paidFrom, setPaidFrom] = useState<PaidFrom>(
     initial?.paid_from ?? "personal"
   );
+  const [splitPctA, setSplitPctA] = useState(initial?.split_pct_a ?? 50);
   const [localError, setLocalError] = useState<string | null>(null);
 
   function reset() {
@@ -211,6 +222,7 @@ function RecurringFields({
     setTypeId(types[0]?.id ?? "");
     setPaidBy(people[0]?.id ?? "");
     setPaidFrom("personal");
+    setSplitPctA(50);
   }
 
   function submit() {
@@ -226,6 +238,8 @@ function RecurringFields({
         expense_type_id: typeId,
         paid_by: paidBy,
         paid_from: paidFrom,
+        split_profile_id: people[0]?.id ?? null,
+        split_pct: splitPctA,
       },
       reset
     );
@@ -287,6 +301,14 @@ function RecurringFields({
           </Select>
         </div>
       </div>
+
+      <SplitPicker
+        personA={people[0]}
+        personB={people[1]}
+        pctA={splitPctA}
+        onChange={setSplitPctA}
+        idPrefix="fc"
+      />
 
       {localError && <p className="text-sm text-negative">{localError}</p>}
 

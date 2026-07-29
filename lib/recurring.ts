@@ -34,8 +34,8 @@ export async function seedMonth(month: string): Promise<number> {
   try {
     for (const t of toSeed) {
       await sql`
-        insert into expenses (amount, expense_type_id, paid_by, paid_from, date, note, recurring_id)
-        values (${t.amount}, ${t.expense_type_id}, ${t.paid_by}, ${t.paid_from}, ${date}, ${null}, ${t.id})
+        insert into expenses (amount, expense_type_id, paid_by, paid_from, split_profile_id, split_pct, date, note, recurring_id)
+        values (${t.amount}, ${t.expense_type_id}, ${t.paid_by}, ${t.paid_from}, ${t.split_profile_id}, ${t.split_pct}, ${date}, ${null}, ${t.id})
       `;
     }
   } catch {

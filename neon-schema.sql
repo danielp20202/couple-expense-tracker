@@ -26,6 +26,10 @@ create table if not exists recurring_expenses (
   expense_type_id uuid references expense_types (id),
   paid_by         uuid not null references profiles (id),
   paid_from       text not null check (paid_from in ('personal', 'joint')),
+  -- How the cost is shared: split_pct% belongs to split_profile_id, the rest to
+  -- the partner. NULL anchor = 50/50 (the default for legacy rows).
+  split_profile_id uuid references profiles (id),
+  split_pct       numeric(5, 2) not null default 50 check (split_pct >= 0 and split_pct <= 100),
   active          boolean not null default true,
   created_at      timestamptz not null default now()
 );
@@ -36,6 +40,10 @@ create table if not exists expenses (
   expense_type_id uuid references expense_types (id),
   paid_by         uuid not null references profiles (id),
   paid_from       text not null check (paid_from in ('personal', 'joint')),
+  -- Split: split_pct% of the amount is split_profile_id's share; the partner
+  -- bears the rest. NULL anchor = 50/50 (legacy default).
+  split_profile_id uuid references profiles (id),
+  split_pct       numeric(5, 2) not null default 50 check (split_pct >= 0 and split_pct <= 100),
   date            date not null default current_date,
   note            text,
   recurring_id    uuid references recurring_expenses (id) on delete set null,
