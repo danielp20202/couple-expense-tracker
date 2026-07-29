@@ -27,7 +27,8 @@ export const content = {
     title: "Monthly summary",
     totalLabel: "Total shared expenses",
     paidPersonallyLabel: "Paid using a personal credit/debit card",
-    fairShareLabel: "Each person's share",
+    yourShareLabel: "Your share",
+    partnerShareLabel: (name: string) => `${name}'s share`,
     transferTitle: "Transfer to the joint account",
     transferHelp:
       "What each person should move into the joint account every month.",
@@ -237,6 +238,15 @@ export const content = {
         return dayOfMonth ? `Day ${dayOfMonth} each month` : "Monthly";
       return "";
     },
+  },
+
+  /** Per-expense split control + display (expense form, history edit, fixed costs). */
+  split: {
+    label: "Split",
+    help: "How this cost is shared. 50/50 unless you change it.",
+    even: "50/50",
+    display: (nameA: string, pctA: number, nameB: string, pctB: number) =>
+      `${nameA} ${pctA}% · ${nameB} ${pctB}%`,
   },
 
   months: {

@@ -51,7 +51,7 @@ export default async function DashboardPage({
   // Cumulative-through-month expenses + settlements → the carry-over balance.
   const [monthRes, allRes, setlRes, jointRes] = await Promise.all([
     sql`select * from expenses where date >= ${start} and date < ${end}`,
-    sql`select amount, paid_from, paid_by from expenses where date < ${end}`,
+    sql`select amount, paid_from, paid_by, split_profile_id, split_pct from expenses where date < ${end}`,
     sql`select amount from settlements where date < ${end}`,
     sql`select paid_by from recurring_expenses where paid_from = 'joint'`,
   ]);
@@ -181,9 +181,15 @@ export default async function DashboardPage({
             </div>
             <div className="mt-2 flex items-baseline justify-between border-t border-border pt-2">
               <span className="text-ink-muted text-sm">
-                {content.dashboard.fairShareLabel}
+                {content.dashboard.yourShareLabel}
               </span>
-              <Money value={formatMoney(summary.fairShare)} />
+              <Money value={formatMoney(mine.share)} />
+            </div>
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-ink-muted text-sm">
+                {content.dashboard.partnerShareLabel(partner.display_name ?? "")}
+              </span>
+              <Money value={formatMoney(theirs.share)} className="text-ink-muted" />
             </div>
           </Card>
 

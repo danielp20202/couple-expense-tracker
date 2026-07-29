@@ -21,6 +21,10 @@ export interface Expense {
   expense_type_id: string | null;
   paid_by: string;
   paid_from: PaidFrom;
+  /** split_pct% of the amount is split_profile_id's share; the partner bears
+   *  the rest. A null anchor means 50/50 (all legacy rows). */
+  split_profile_id: string | null;
+  split_pct: number;
   date: string; // YYYY-MM-DD
   note: string | null;
   recurring_id: string | null;
@@ -39,6 +43,9 @@ export interface RecurringExpense {
   expense_type_id: string | null;
   paid_by: string;
   paid_from: PaidFrom;
+  /** Same split semantics as Expense; copied onto seeded expense rows. */
+  split_profile_id: string | null;
+  split_pct: number;
   active: boolean;
   created_at: string;
 }

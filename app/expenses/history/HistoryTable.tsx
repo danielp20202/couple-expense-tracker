@@ -16,6 +16,7 @@ import {
 } from "@/app/actions/expenses";
 import { formatMoney, formatDateShort } from "@/lib/format";
 import { Button, Card, Input, Money, Select } from "@/app/components/ui";
+import { SplitPicker, pctAOf } from "@/app/components/SplitPicker";
 
 export function HistoryTable({
   expenses,
@@ -159,6 +160,13 @@ export function HistoryTable({
                     {e.paid_from === "joint"
                       ? content.expenseForm.paidFromJoint
                       : content.expenseForm.paidFromPersonal}
+                    {pctAOf(e, personA.id) !== 50 &&
+                      ` · ${content.split.display(
+                        personA.display_name ?? "",
+                        pctAOf(e, personA.id),
+                        personB.display_name ?? "",
+                        Math.round((100 - pctAOf(e, personA.id)) * 100) / 100
+                      )}`}
                     {e.note ? ` · ${e.note}` : ""}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -213,6 +221,8 @@ function EditRow({
     expense_type_id: string;
     paid_by: string;
     paid_from: PaidFrom;
+    split_profile_id: string | null;
+    split_pct: number;
     date: string;
     note: string | null;
   }) => void;
@@ -222,6 +232,7 @@ function EditRow({
   const [typeId, setTypeId] = useState(expense.expense_type_id ?? types[0]?.id ?? "");
   const [paidBy, setPaidBy] = useState(expense.paid_by);
   const [paidFrom, setPaidFrom] = useState<PaidFrom>(expense.paid_from);
+  const [splitPctA, setSplitPctA] = useState(pctAOf(expense, personA.id));
   const [date, setDate] = useState(expense.date);
   const [note, setNote] = useState(expense.note ?? "");
 
@@ -261,6 +272,13 @@ function EditRow({
           onChange={(e) => setNote(e.target.value)}
         />
       </div>
+      <SplitPicker
+        personA={personA}
+        personB={personB}
+        pctA={splitPctA}
+        onChange={setSplitPctA}
+        idPrefix={`edit-${expense.id}`}
+      />
       <div className="flex gap-2">
         <Button
           disabled={pending}
@@ -270,6 +288,8 @@ function EditRow({
               expense_type_id: typeId,
               paid_by: paidBy,
               paid_from: paidFrom,
+              split_profile_id: personA.id,
+              split_pct: splitPctA,
               date,
               note: note.trim() || null,
             })

@@ -25,6 +25,7 @@ _Nothing pending._
 
 | Date | Agent | Item |
 |------|-------|------|
+| 2026-07-29 | App | **Per-expense split percentages** — expenses + fixed costs carry a split (default 50/50); new `SplitPicker` component; balance/share math reworked in `lib/calc.ts`. Two additive columns applied to Neon. Touched `content.ts` (new `split` block + dashboard share labels). |
 | 2026-06-25 | App | Chores **mobile responsiveness fixes** — "+ New chore" button full-width on its own row, current week starts at today on mobile (past days hidden), manage rows stack so long names don't overlap the buttons (`fix/chores-mobile-responsive` → `main`). |
 | 2026-06-25 | App | **Upcoming chores per person** on the Summary tab (`feature/dashboard-upcoming-chores` → `main`). |
 | 2026-06-24 | App | Chores **week-calendar redesign** — nav tab, responsive 7-day calendar grid (stacked mobile / 7-col desktop), one-tap complete, inline avatar reassign, per-day quick-add sheet (`feature/chores-calendar` → `main`). |

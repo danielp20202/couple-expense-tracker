@@ -6,6 +6,7 @@ import { content } from "@/content";
 import type { ExpenseType, PaidFrom, Profile } from "@/lib/types";
 import { createExpense } from "@/app/actions/expenses";
 import { Button, Card, Input, Label, Select } from "@/app/components/ui";
+import { SplitPicker } from "@/app/components/SplitPicker";
 
 function today(): string {
   const d = new Date();
@@ -32,6 +33,7 @@ export function ExpenseForm({
   const [typeId, setTypeId] = useState(types[0]?.id ?? "");
   const [paidBy, setPaidBy] = useState(personA.id);
   const [paidFrom, setPaidFrom] = useState<PaidFrom>("personal");
+  const [splitPctA, setSplitPctA] = useState(50);
   const [date, setDate] = useState(today());
   const [note, setNote] = useState("");
 
@@ -58,6 +60,8 @@ export function ExpenseForm({
         expense_type_id: typeId,
         paid_by: paidBy,
         paid_from: paidFrom,
+        split_profile_id: personA.id,
+        split_pct: splitPctA,
         date,
         note: note.trim() || null,
       });
@@ -68,6 +72,7 @@ export function ExpenseForm({
       setMessage(content.expenseForm.success);
       setAmount("");
       setNote("");
+      setSplitPctA(50);
       router.refresh();
     });
   }
@@ -130,6 +135,14 @@ export function ExpenseForm({
             </Select>
           </div>
         </div>
+
+        <SplitPicker
+          personA={personA}
+          personB={personB}
+          pctA={splitPctA}
+          onChange={setSplitPctA}
+          idPrefix="exp"
+        />
 
         <div>
           <Label htmlFor="date">{content.expenseForm.date}</Label>
