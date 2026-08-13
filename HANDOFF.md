@@ -13,6 +13,8 @@ For stable rules and file ownership, see [`CLAUDE.md`](./CLAUDE.md).
 
 > **⚠️ Heads-up — App edited `Nav.tsx` (your file).** At the human's direct request ("make Chores a tab"), the App agent added the **Chores** nav pill to the `links` array in `app/components/Nav.tsx` and extended the `active` check so the tab highlights on `/chores/*` sub-routes. This is the one cross-ownership edit; it's minimal and uses the existing `content.nav.chores` string. Please fold it into your styling as you see fit — no need to revert. The earlier "add a Chores nav pill" to-do is now done.
 
+> **⚠️ Heads-up — App added an `Activities` nav entry (your file), on branch `feature/activities` (not yet merged).** Same pattern as Chores: one line added to the `links` array in `app/components/Nav.tsx` using the existing `content.nav.activities` string, no other Nav changes. The new `/activities` page itself (list of date ideas, read from a Notion database — see README § "Activities (Notion)") is plain `Card`/`Chip` markup using existing design tokens, unstyled beyond that — happy for Visuals to give it a pass whenever, no rush since it's optional/low-traffic. Also added a `Chip` primitive to `app/components/ui.tsx` (not Nav-owned, but flagging since it's new shared UI).
+
 ---
 
 ## Pending for App agent

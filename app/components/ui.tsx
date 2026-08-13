@@ -76,6 +76,14 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return <select className={fieldClasses} {...props} />;
 }
 
+export function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-pill bg-surface-muted px-2.5 py-1 text-xs text-ink-muted">
+      {children}
+    </span>
+  );
+}
+
 export function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-muted mb-3">{children}</h2>;
 }

@@ -21,6 +21,7 @@ export const content = {
     fixedCosts: "Fixed costs",
     types: "Categories",
     chores: "Chores",
+    activities: "Activities",
   },
 
   dashboard: {
@@ -238,6 +239,29 @@ export const content = {
         return dayOfMonth ? `Day ${dayOfMonth} each month` : "Monthly";
       return "";
     },
+  },
+
+  /** Read-only list of date ideas, sourced from a Notion database. */
+  activities: {
+    title: "Activities",
+    help: "Ideas for things to do together. Add or edit entries in the Notion “Activities” database — changes show up here on reload.",
+    empty: "No activities yet. Add some in the Notion “Activities” database.",
+    notConfigured:
+      "Notion isn't connected yet. Set NOTION_TOKEN and NOTION_ACTIVITIES_DB_ID (see the README) to show this list.",
+    loadError:
+      "Couldn't load activities from Notion. Double-check the database is shared with your integration (··· → Connections in Notion) and that NOTION_ACTIVITIES_DB_ID is correct — see the README.",
+    statusGroups: {
+      "Want to try": "Want to try",
+      Planned: "Planned",
+      Done: "Done",
+    } as Record<string, string>,
+    openInNotion: "Open in Notion ↗",
+    driveTime: (min: number) => `${min} min drive`,
+    who: {
+      Couple: "Couple",
+      Solo: "Solo",
+      Either: "Either",
+    } as Record<string, string>,
   },
 
   /** Per-expense split control + display (expense form, history edit, fixed costs). */
