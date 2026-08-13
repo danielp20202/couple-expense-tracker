@@ -36,7 +36,7 @@ Create with `git worktree add <path> <branch>`. Each worktree needs its own `npm
 
 - `main` is the stable branch; both agents merge and push here.
 - **App agent** last merged: fixed costs, history revamp, profile landing, the **settlement ledger** (settle button + cumulative carry-over balance), the mobile History fix, the **Supabase → Neon database migration** (now live in production), the **household chores tracker** (recurring chores + assignment, week-calendar tab, upcoming-chores card on the Summary tab, plus chores mobile-responsiveness fixes), per-expense **split percentages**, and the **Activities tab** (read-only date-ideas list with photo cards — see `HANDOFF.md` for the cross-ownership Nav.tsx note).
-- **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale), and the **profile-picker styling** — `visuals/profile-picker` is now **merged to `main`** and deployed.
+- **Visuals agent** last merged: design system (warm palette, Plus Jakarta Sans, pill buttons, type scale), the **profile-picker styling** (`visuals/profile-picker` → merged to `main`), and the **"Ledger" visual redesign** — a full re-theme to an editorial serif/mono system with flat hairline-rule sheets, replacing the warm-terracotta palette (`visuals/ledger-redesign` → merged to `main`, deployed; see `DESIGN.md` for the current design system and `HANDOFF.md` for the merge notes).
 
 ### Profile-picker hand-off — status (merged to `main`)
 
