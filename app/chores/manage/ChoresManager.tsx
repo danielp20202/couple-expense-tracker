@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { content } from "@/content";
-import { clsx } from "@/lib/clsx";
 import type { Chore, ChoreRecurrence, Profile } from "@/lib/types";
 import {
   createChore,
@@ -12,7 +11,7 @@ import {
   updateChore,
   type ChoreInput,
 } from "@/app/actions/chores";
-import { Button, Card, Label, Input, Select } from "@/app/components/ui";
+import { Button, Card, Label, Input, Select, SectionTitle, Chip } from "@/app/components/ui";
 
 interface Props {
   chores: Chore[];
@@ -59,7 +58,7 @@ export function ChoresManager({ chores, personA, personB }: Props) {
   return (
     <div className="space-y-4">
       <Card>
-        <p className="text-sm font-semibold text-ink mb-3">{content.chores.addTitle}</p>
+        <SectionTitle>{content.chores.addTitle}</SectionTitle>
         <ChoreFields
           people={people}
           pending={pending}
@@ -100,7 +99,9 @@ export function ChoresManager({ chores, personA, personB }: Props) {
                     <div className="flex items-center gap-2">
                       <span
                         className={
-                          c.active ? "text-ink font-medium" : "text-ink-muted line-through"
+                          c.active
+                            ? "font-serif font-semibold text-ink"
+                            : "text-ink-muted line-through"
                         }
                       >
                         {c.name}
@@ -268,19 +269,9 @@ function ChoreFields({
           <Label>{content.chores.weekdays}</Label>
           <div className="flex flex-wrap gap-1.5">
             {WEEKDAY_ORDER.map((w) => (
-              <button
-                key={w}
-                type="button"
-                onClick={() => toggleWeekday(w)}
-                className={clsx(
-                  "rounded-pill px-3 py-1.5 text-sm font-medium transition-colors",
-                  weekdays.includes(w)
-                    ? "bg-primary text-ink-inverse"
-                    : "border border-border text-ink-muted hover:bg-surface-muted"
-                )}
-              >
+              <Chip key={w} active={weekdays.includes(w)} onClick={() => toggleWeekday(w)}>
                 {content.chores.weekdayShort[w]}
-              </button>
+              </Chip>
             ))}
           </div>
         </div>

@@ -4,7 +4,7 @@ import { monthBounds } from "@/lib/month";
 import { content } from "@/content";
 import { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "@/lib/history";
 import type { ExpenseType, ExpenseWithType, Settlement } from "@/lib/types";
-import { Card, SectionTitle } from "@/app/components/ui";
+import { Card, SectionTitle, PageTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { HistoryControls } from "./HistoryControls";
 import { HistoryTable } from "./HistoryTable";
@@ -21,7 +21,7 @@ export default async function HistoryPage({
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.history.title}</SectionTitle>
+        <PageTitle>{content.history.title}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -85,7 +85,7 @@ export default async function HistoryPage({
 
   return (
     <div className="space-y-5">
-      <SectionTitle>{content.history.title}</SectionTitle>
+      <PageTitle>{content.history.title}</PageTitle>
 
       <Card>
         <HistoryControls

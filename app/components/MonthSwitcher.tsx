@@ -4,7 +4,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { content } from "@/content";
 import { formatMonthLabel, } from "@/lib/format";
 import { shiftMonth, currentMonth } from "@/lib/month";
-import { Button } from "@/app/components/ui";
+import { clsx } from "@/lib/clsx";
 
 /**
  * Prev / current-month / next control. Stores the month in the ?month= URL param.
@@ -25,21 +25,21 @@ export function MonthSwitcher({ month }: { month: string }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <Button variant="ghost" onClick={() => go(-1)}>
+    <div className="flex items-center justify-between gap-3 font-mono text-xs text-ink-muted min-h-[40px]">
+      <button type="button" onClick={() => go(-1)} className="px-1 py-2 hover:text-ink transition-colors">
         {content.months.prev}
-      </Button>
-      <span className="text-sm font-semibold text-ink">
+      </button>
+      <span className="font-medium uppercase tracking-[0.06em] text-ink">
         {formatMonthLabel(month)}
       </span>
-      <Button
-        variant="ghost"
+      <button
+        type="button"
         onClick={() => go(1)}
         disabled={atCurrentMonth}
-        className={atCurrentMonth ? "invisible" : undefined}
+        className={clsx("px-1 py-2 hover:text-ink transition-colors", atCurrentMonth && "invisible")}
       >
         {content.months.next}
-      </Button>
+      </button>
     </div>
   );
 }

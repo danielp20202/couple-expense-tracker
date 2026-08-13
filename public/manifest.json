@@ -4,8 +4,8 @@
   "description": "Shared 50/50, settled every month",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF9F7",
-  "theme_color": "#C2674A",
+  "background_color": "#EAE7DF",
+  "theme_color": "#1E1C18",
   "orientation": "portrait",
   "icons": [
     {

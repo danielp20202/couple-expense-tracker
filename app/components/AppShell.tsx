@@ -9,6 +9,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
   return (
-    <main className="mx-auto max-w-3xl px-page py-6">{children}</main>
+    <main className="mx-auto max-w-3xl px-page py-8">{children}</main>
   );
 }

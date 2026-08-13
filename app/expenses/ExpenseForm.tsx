@@ -3,9 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { content } from "@/content";
+import { clsx } from "@/lib/clsx";
 import type { ExpenseType, PaidFrom, Profile } from "@/lib/types";
 import { createExpense } from "@/app/actions/expenses";
-import { Button, Card, Input, Label, Select } from "@/app/components/ui";
+import { Button, Card, Chip, Input, Label } from "@/app/components/ui";
 import { SplitPicker } from "@/app/components/SplitPicker";
 
 function today(): string {
@@ -13,6 +14,38 @@ function today(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate()
   ).padStart(2, "0")}`;
+}
+
+/** Two-option segmented toggle — replaces a <select> for a binary choice. */
+function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex rounded-control border border-border overflow-hidden">
+      {options.map((opt, i) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={clsx(
+            "flex-1 min-h-[40px] px-2 text-sm transition-colors",
+            i > 0 && "border-l border-border",
+            opt.value === value
+              ? "bg-primary text-ink-inverse font-semibold"
+              : "text-ink-muted hover:bg-surface-muted"
+          )}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function ExpenseForm({
@@ -79,60 +112,58 @@ export function ExpenseForm({
 
   return (
     <Card>
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <Label htmlFor="amount">{content.expenseForm.amount}</Label>
-          <Input
-            id="amount"
-            type="number"
-            inputMode="decimal"
-            step="0.01"
-            min="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
+          <div className="flex items-baseline gap-1 border-b border-ink pb-2">
+            <span className="font-serif text-2xl text-ink-muted">$</span>
+            <input
+              id="amount"
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              className="w-full border-none bg-transparent font-serif text-[32px] font-semibold text-ink tabular-nums outline-none"
+            />
+          </div>
         </div>
 
         <div>
-          <Label htmlFor="type">{content.expenseForm.type}</Label>
-          <Select
-            id="type"
-            value={typeId}
-            onChange={(e) => setTypeId(e.target.value)}
-          >
+          <Label>{content.expenseForm.type}</Label>
+          <div className="flex flex-wrap gap-2">
             {types.map((t) => (
-              <option key={t.id} value={t.id}>
+              <Chip key={t.id} active={t.id === typeId} onClick={() => setTypeId(t.id)}>
                 {t.name}
-              </option>
+              </Chip>
             ))}
-          </Select>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="paidBy">{content.expenseForm.paidBy}</Label>
-            <Select
-              id="paidBy"
+            <Label>{content.expenseForm.paidBy}</Label>
+            <Segmented
               value={paidBy}
-              onChange={(e) => setPaidBy(e.target.value)}
-            >
-              <option value={personA.id}>{personA.display_name}</option>
-              <option value={personB.id}>{personB.display_name}</option>
-            </Select>
+              onChange={setPaidBy}
+              options={[
+                { value: personA.id, label: personA.display_name ?? "" },
+                { value: personB.id, label: personB.display_name ?? "" },
+              ]}
+            />
           </div>
           <div>
-            <Label htmlFor="paidFrom">{content.expenseForm.paidFrom}</Label>
-            <Select
-              id="paidFrom"
+            <Label>{content.expenseForm.paidFrom}</Label>
+            <Segmented<PaidFrom>
               value={paidFrom}
-              onChange={(e) => setPaidFrom(e.target.value as PaidFrom)}
-            >
-              <option value="personal">
-                {content.expenseForm.paidFromPersonal}
-              </option>
-              <option value="joint">{content.expenseForm.paidFromJoint}</option>
-            </Select>
+              onChange={setPaidFrom}
+              options={[
+                { value: "personal", label: content.expenseForm.paidFromPersonal },
+                { value: "joint", label: content.expenseForm.paidFromJoint },
+              ]}
+            />
           </div>
         </div>
 
@@ -169,7 +200,7 @@ export function ExpenseForm({
         {error && <p className="text-sm text-negative">{error}</p>}
         {message && <p className="text-sm text-positive">{message}</p>}
 
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className="w-full">
           {pending ? content.expenseForm.saving : content.expenseForm.submit}
         </Button>
       </form>

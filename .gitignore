@@ -11,6 +11,10 @@
 # misc
 .DS_Store
 
+# next-pwa generated service worker (built on demand, not source)
+/public/sw.js
+/public/workbox-*.js
+
 # debug
 npm-debug.log*
 

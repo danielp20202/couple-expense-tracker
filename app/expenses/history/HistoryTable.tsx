@@ -14,9 +14,16 @@ import {
   deleteExpenses,
   updateExpense,
 } from "@/app/actions/expenses";
-import { formatMoney, formatDateShort } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { Button, Card, Input, Money, Select } from "@/app/components/ui";
 import { SplitPicker, pctAOf } from "@/app/components/SplitPicker";
+
+const MONTH_ABBR = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+/** Ledger-row day/month block from a YYYY-MM-DD string (no Date() — avoids TZ shift). */
+function dayMonth(dateStr: string): { day: string; mon: string } {
+  const [, mm, dd] = dateStr.split("-");
+  return { day: dd, mon: MONTH_ABBR[Number(mm) - 1] ?? mm };
+}
 
 export function HistoryTable({
   expenses,
@@ -148,15 +155,23 @@ export function HistoryTable({
                   onChange={() => toggle(e.id)}
                   aria-label="Select entry"
                 />
+                <div className="w-9 shrink-0 text-center">
+                  <div className="font-mono text-[15px] font-medium leading-none text-ink">
+                    {dayMonth(e.date).day}
+                  </div>
+                  <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-muted">
+                    {dayMonth(e.date).mon}
+                  </div>
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-medium text-ink">
+                    <span className="font-serif font-semibold text-ink">
                       {e.expense_type?.name ?? "—"}
                     </span>
-                    <Money value={formatMoney(Number(e.amount))} className="shrink-0" />
+                    <Money value={formatMoney(Number(e.amount))} className="shrink-0 text-[15px] font-semibold" />
                   </div>
                   <div className="mt-0.5 text-xs text-ink-muted break-words">
-                    {formatDateShort(e.date)} · {nameFor(e.paid_by)} ·{" "}
+                    {nameFor(e.paid_by)} ·{" "}
                     {e.paid_from === "joint"
                       ? content.expenseForm.paidFromJoint
                       : content.expenseForm.paidFromPersonal}

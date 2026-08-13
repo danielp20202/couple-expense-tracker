@@ -4,7 +4,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { content } from "@/content";
 import { formatWeekLabel } from "@/lib/format";
 import { shiftWeek, currentWeekMonday } from "@/lib/week";
-import { Button } from "@/app/components/ui";
 
 /**
  * Prev / week-label / next control. Stores the week's Monday in the ?week= URL
@@ -31,26 +30,26 @@ export function WeekSwitcher({ week }: { week: string }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <Button variant="ghost" onClick={() => go(-1)}>
+    <div className="flex items-center justify-between gap-3 font-mono text-xs text-ink-muted min-h-[40px]">
+      <button type="button" onClick={() => go(-1)} className="px-1 py-2 hover:text-ink transition-colors">
         {content.weeks.prev}
-      </Button>
+      </button>
       <button
         type="button"
         onClick={goToday}
-        className="text-sm font-semibold text-ink hover:text-primary transition-colors"
+        className="font-medium uppercase tracking-[0.06em] text-ink hover:text-ink transition-colors"
         title={content.weeks.thisWeek}
       >
         {formatWeekLabel(week)}
         {atCurrentWeek && (
-          <span className="ml-2 text-xs font-medium text-ink-muted">
-            {content.weeks.thisWeek}
+          <span className="ml-2 normal-case tracking-normal text-ink-muted">
+            ({content.weeks.thisWeek})
           </span>
         )}
       </button>
-      <Button variant="ghost" onClick={() => go(1)}>
+      <button type="button" onClick={() => go(1)} className="px-1 py-2 hover:text-ink transition-colors">
         {content.weeks.next}
-      </Button>
+      </button>
     </div>
   );
 }

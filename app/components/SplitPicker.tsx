@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { content } from "@/content";
 import type { Profile } from "@/lib/types";
-import { Label } from "@/app/components/ui";
+import { Chip, Label } from "@/app/components/ui";
+
+const PRESETS = [50, 60, 40];
 
 /**
  * Two linked percentage inputs — one per person, always summing to 100.
@@ -47,12 +49,30 @@ export function SplitPicker({
     onChange(who === "a" ? mine : other);
   }
 
+  function applyPreset(preset: number) {
+    setA(String(preset));
+    setB(String(100 - preset));
+    onChange(preset);
+  }
+
   const fieldClasses =
     "w-full rounded-control border border-border bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40";
 
   return (
     <div>
-      <Label htmlFor={`${idPrefix}-split-a`}>{content.split.label}</Label>
+      <div className="mb-2 flex items-baseline justify-between">
+        <Label htmlFor={`${idPrefix}-split-a`}>{content.split.label}</Label>
+        <span className="font-mono text-[11px] text-ink-muted">
+          {content.split.display(personA.display_name ?? "", Number(a) || 0, personB.display_name ?? "", Number(b) || 0)}
+        </span>
+      </div>
+      <div className="mb-2 flex gap-2">
+        {PRESETS.map((preset) => (
+          <Chip key={preset} active={Number(a) === preset} onClick={() => applyPreset(preset)}>
+            {preset}/{100 - preset}
+          </Chip>
+        ))}
+      </div>
       <div className="grid grid-cols-2 gap-3">
         {(
           [

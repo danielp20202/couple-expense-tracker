@@ -60,7 +60,7 @@ export function UpcomingChores({
         <SectionTitle>{content.dashboard.upcomingChoresTitle}</SectionTitle>
         <Link
           href="/chores"
-          className="shrink-0 text-sm font-medium text-primary hover:underline"
+          className="shrink-0 text-xs text-ink-muted hover:text-ink transition-colors"
         >
           {content.dashboard.viewChores}
         </Link>
@@ -97,8 +97,8 @@ export function UpcomingChores({
                       <span className="min-w-0 truncate text-ink">{o.chore.name}</span>
                       <span
                         className={clsx(
-                          "shrink-0 text-xs font-medium",
-                          o.date === today ? "text-primary" : "text-ink-muted"
+                          "shrink-0 font-mono text-[11px]",
+                          o.date === today ? "text-ink font-medium" : "text-ink-muted"
                         )}
                       >
                         {formatRelativeDay(o.date, today)}

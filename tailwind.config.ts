@@ -35,6 +35,7 @@ const config: Config = {
         pill: theme.radius.pill,
       },
       fontFamily: {
+        serif: theme.fonts.serif.split(",").map((f) => f.trim()),
         sans: theme.fonts.sans.split(",").map((f) => f.trim()),
         mono: theme.fonts.mono.split(",").map((f) => f.trim()),
       },

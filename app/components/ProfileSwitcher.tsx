@@ -13,12 +13,13 @@ export function ProfileSwitcher({ name }: { name: string }) {
   return (
     <Link
       href="/select"
-      className="inline-flex items-center gap-2 rounded-pill bg-surface-muted px-2 py-1 text-sm text-ink hover:bg-border transition-colors"
+      className="inline-flex items-center gap-2 rounded-pill border border-border bg-surface pl-1 pr-3 py-1 hover:bg-surface-muted transition-colors"
       title={content.profiles.switch}
     >
       <Avatar name={name} size={28} photoSrc={content.profiles.photos[name]} />
-      <span className="font-medium">{name}</span>
-      <span className="text-ink-muted text-xs">{content.profiles.switch}</span>
+      <span className="font-mono text-[10.5px] uppercase tracking-wide text-ink-muted">
+        {content.profiles.switch}
+      </span>
     </Link>
   );
 }

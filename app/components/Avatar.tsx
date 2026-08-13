@@ -57,7 +57,7 @@ export function Avatar({
         width: size,
         height: size,
         fontSize: size * 0.4,
-        backgroundColor: `hsl(${h}deg 55% 45%)`,
+        backgroundColor: `hsl(${h}deg 22% 30%)`,
       }}
       aria-hidden
     >

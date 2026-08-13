@@ -94,7 +94,7 @@ export function TypesManager({
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-ink">{t.name}</span>
+                    <span className="flex-1 font-serif font-semibold text-ink">{t.name}</span>
                     <Button
                       variant="ghost"
                       onClick={() => {

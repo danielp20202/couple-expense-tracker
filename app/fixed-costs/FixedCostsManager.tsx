@@ -17,7 +17,7 @@ import {
   updateRecurring,
   type RecurringInput,
 } from "@/app/actions/recurring";
-import { Button, Card, Label, Money, Select } from "@/app/components/ui";
+import { Button, Card, Label, Money, Select, SectionTitle } from "@/app/components/ui";
 import { SplitPicker, pctAOf } from "@/app/components/SplitPicker";
 
 interface Props {
@@ -64,7 +64,7 @@ export function FixedCostsManager({ recurring, types, personA, personB }: Props)
   return (
     <div className="space-y-4">
       <Card>
-        <SectionLabel>{content.fixedCosts.addTitle}</SectionLabel>
+        <SectionTitle>{content.fixedCosts.addTitle}</SectionTitle>
         <RecurringFields
           types={types}
           people={people}
@@ -117,7 +117,9 @@ export function FixedCostsManager({ recurring, types, personA, personB }: Props)
                     <div className="flex items-center gap-2">
                       <span
                         className={
-                          r.active ? "text-ink font-medium" : "text-ink-muted line-through"
+                          r.active
+                            ? "font-serif font-semibold text-ink"
+                            : "text-ink-muted line-through"
                         }
                       >
                         {r.expense_type?.name ?? "—"}
@@ -176,10 +178,6 @@ export function FixedCostsManager({ recurring, types, personA, personB }: Props)
       )}
     </div>
   );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm font-semibold text-ink mb-3">{children}</p>;
 }
 
 /** Shared add/edit field set for a recurring fixed cost. */

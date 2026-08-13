@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { content } from "@/content";
 import type { ExpenseType } from "@/lib/types";
-import { SectionTitle } from "@/app/components/ui";
+import { PageTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { ExpenseForm } from "./ExpenseForm";
 
@@ -13,7 +13,7 @@ export default async function AddExpensePage() {
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.expenseForm.title}</SectionTitle>
+        <PageTitle>{content.expenseForm.title}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -25,7 +25,7 @@ export default async function AddExpensePage() {
 
   return (
     <div className="space-y-5">
-      <SectionTitle>{content.expenseForm.title}</SectionTitle>
+      <PageTitle>{content.expenseForm.title}</PageTitle>
       <ExpenseForm
         types={types}
         personA={couple.personA}

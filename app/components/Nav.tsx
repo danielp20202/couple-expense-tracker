@@ -20,13 +20,16 @@ export function Nav() {
   return (
     <nav className="bg-background border-b border-border">
       <div className="mx-auto max-w-3xl px-page">
-        <div className="flex items-center justify-between py-3">
-          <Link href="/dashboard" className="flex items-center gap-2.5 font-semibold text-ink tracking-tight">
-            <img src="/images/laura_1.webp" alt="" className="h-7 w-7 rounded-full object-cover ring-2 ring-border" />
+        <div className="flex items-center justify-between py-4">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5 font-serif font-semibold text-ink tracking-tight"
+          >
+            <img src="/images/laura_1.webp" alt="" className="h-7 w-7 rounded-full object-cover ring-1 ring-border" />
             {content.appName}
           </Link>
         </div>
-        <div className="flex gap-1 overflow-x-auto pb-3 -mb-px">
+        <div className="flex gap-5 overflow-x-auto pb-0 -mb-px">
           {links.map((l) => {
             // Chores has sub-routes (/chores/manage) that should keep the tab active.
             const active =
@@ -37,10 +40,10 @@ export function Nav() {
                 key={l.href}
                 href={l.href}
                 className={clsx(
-                  "whitespace-nowrap rounded-pill px-4 py-2 text-sm font-medium transition-colors min-h-[40px] flex items-center",
+                  "whitespace-nowrap font-mono text-[11px] uppercase tracking-wide transition-colors min-h-[40px] flex items-center border-b-2 -mb-px",
                   active
-                    ? "bg-primary text-ink-inverse"
-                    : "text-ink-muted hover:bg-surface-muted"
+                    ? "border-ink text-ink font-medium"
+                    : "border-transparent text-ink-muted hover:text-ink"
                 )}
               >
                 {l.label}

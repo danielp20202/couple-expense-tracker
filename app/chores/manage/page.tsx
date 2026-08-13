@@ -3,7 +3,7 @@ import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { content } from "@/content";
 import type { Chore } from "@/lib/types";
-import { SectionTitle } from "@/app/components/ui";
+import { PageTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { ChoresManager } from "./ChoresManager";
 
@@ -14,7 +14,7 @@ export default async function ManageChoresPage() {
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.chores.manageTitle}</SectionTitle>
+        <PageTitle>{content.chores.manageTitle}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -25,10 +25,10 @@ export default async function ManageChoresPage() {
 
   return (
     <div className="space-y-5">
-      <Link href="/chores" className="text-sm text-ink-muted hover:text-primary transition-colors">
+      <Link href="/chores" className="font-mono text-xs uppercase tracking-wide text-ink-muted hover:text-ink transition-colors">
         {content.chores.backToWeek}
       </Link>
-      <SectionTitle>{content.chores.manageTitle}</SectionTitle>
+      <PageTitle>{content.chores.manageTitle}</PageTitle>
       <p className="text-sm text-ink-muted">{content.chores.manageHelp}</p>
       <ChoresManager chores={chores} personA={couple.personA} personB={couple.personB} />
     </div>

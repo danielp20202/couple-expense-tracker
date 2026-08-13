@@ -8,9 +8,10 @@ import { todayISO, daysFrom } from "@/lib/week";
 import { occurrencesForWeek } from "@/lib/chores";
 import { getSelectedProfileId } from "@/lib/profile-session";
 import { formatMoney } from "@/lib/format";
+import { clsx } from "@/lib/clsx";
 import { content } from "@/content";
 import type { Expense, Chore, ChoreCompletion } from "@/lib/types";
-import { Card, Money, SectionTitle } from "@/app/components/ui";
+import { Card, Money, SectionTitle, PageTitle } from "@/app/components/ui";
 import { MonthSwitcher } from "@/app/components/MonthSwitcher";
 import { SeedFixedCostsButton } from "@/app/components/SeedFixedCostsButton";
 import { ProfileSwitcher } from "@/app/components/ProfileSwitcher";
@@ -34,7 +35,7 @@ export default async function DashboardPage({
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.dashboard.title}</SectionTitle>
+        <PageTitle>{content.dashboard.title}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -105,10 +106,10 @@ export default async function DashboardPage({
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-ink-muted text-sm">
+          <p className="font-mono text-xs text-ink-muted mb-1">
             {content.profiles.greeting(me.display_name ?? "")}
           </p>
-          <SectionTitle>{content.dashboard.title}</SectionTitle>
+          <PageTitle>{content.dashboard.title}</PageTitle>
         </div>
         <ProfileSwitcher name={me.display_name ?? ""} />
       </div>
@@ -139,17 +140,29 @@ export default async function DashboardPage({
 
           {positive ? (
             <>
-              <p className="text-sm text-ink-muted mb-3">
+              <div className="mb-1 flex items-baseline gap-2">
+                <span className={clsx("text-base", iAmRentHolder ? "text-positive" : "text-negative")}>
+                  {iAmRentHolder ? "▼" : "▲"}
+                </span>
+                <span
+                  className={clsx(
+                    "font-mono text-[11.5px] uppercase tracking-wide font-medium",
+                    iAmRentHolder ? "text-positive" : "text-negative"
+                  )}
+                >
+                  {iAmRentHolder ? `${partnerName}'s share` : me.display_name}
+                </span>
+              </div>
+              <Money
+                value={formatMoney(balance)}
+                tone={iAmRentHolder ? "positive" : "negative"}
+                className="block text-[40px] font-semibold leading-none mb-2"
+              />
+              <p className="text-sm text-ink-muted mb-4">
                 {iAmRentHolder
                   ? content.profiles.reclaimHelp
                   : content.profiles.yourTransferHelp}
               </p>
-              <div className="flex items-baseline justify-between">
-                <span className="text-ink font-medium">
-                  {iAmRentHolder ? `${partnerName}'s share` : me.display_name}
-                </span>
-                <Money value={formatMoney(balance)} className="text-3xl font-bold" />
-              </div>
               {iAmRentHolder && rentHolderId && (
                 <SettleTransferButton profileId={rentHolderId} amount={balance} />
               )}
@@ -161,11 +174,14 @@ export default async function DashboardPage({
                 : content.profiles.youCoveredExtra(formatMoney(abs))}
             </p>
           ) : (
-            <p className="text-sm text-positive">
-              {iAmRentHolder
-                ? content.profiles.allSettled
-                : content.profiles.depositNothing}
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-base text-positive">&#10003;</span>
+              <p className="text-sm text-positive">
+                {iAmRentHolder
+                  ? content.profiles.allSettled
+                  : content.profiles.depositNothing}
+              </p>
+            </div>
           )}
         </Card>
       )}

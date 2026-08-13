@@ -133,8 +133,8 @@ export function ChoreCalendar({
                     : "border-border bg-surface-muted/40"
                 )}
               >
-                <span className="text-xs font-semibold uppercase tracking-wide">{dow}</span>
-                <span className={clsx("text-sm", isToday ? "font-bold" : "text-ink-muted")}>
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-wide">{dow}</span>
+                <span className={clsx("font-mono text-sm", isToday ? "font-bold" : "text-ink-muted")}>
                   {dayNum}
                 </span>
               </div>

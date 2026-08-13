@@ -7,7 +7,7 @@ import { normalizeWeek, weekDays } from "@/lib/week";
 import { occurrencesForWeek } from "@/lib/chores";
 import { content } from "@/content";
 import type { Chore, ChoreCompletion } from "@/lib/types";
-import { SectionTitle } from "@/app/components/ui";
+import { PageTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { ChoreCalendar } from "./ChoreCalendar";
 
@@ -25,7 +25,7 @@ export default async function ChoresPage({
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.chores.title}</SectionTitle>
+        <PageTitle>{content.chores.title}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -55,7 +55,7 @@ export default async function ChoresPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <SectionTitle>{content.chores.title}</SectionTitle>
+        <PageTitle>{content.chores.title}</PageTitle>
         <Link
           href="/chores/manage"
           className="whitespace-nowrap rounded-pill border border-border px-4 py-2 text-sm font-medium text-ink-muted hover:bg-surface-muted transition-colors"

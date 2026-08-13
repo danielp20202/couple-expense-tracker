@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { getCouple } from "@/lib/profiles";
 import { content } from "@/content";
 import type { ExpenseType, RecurringExpenseWithType } from "@/lib/types";
-import { SectionTitle } from "@/app/components/ui";
+import { PageTitle } from "@/app/components/ui";
 import { SetupNotice } from "@/app/components/SetupNotice";
 import { FixedCostsManager } from "./FixedCostsManager";
 
@@ -13,7 +13,7 @@ export default async function FixedCostsPage() {
   if (!couple) {
     return (
       <div className="space-y-4">
-        <SectionTitle>{content.fixedCosts.title}</SectionTitle>
+        <PageTitle>{content.fixedCosts.title}</PageTitle>
         <SetupNotice />
       </div>
     );
@@ -37,7 +37,7 @@ export default async function FixedCostsPage() {
 
   return (
     <div className="space-y-5">
-      <SectionTitle>{content.fixedCosts.title}</SectionTitle>
+      <PageTitle>{content.fixedCosts.title}</PageTitle>
       <p className="text-sm text-ink-muted">{content.fixedCosts.help}</p>
       <FixedCostsManager
         recurring={recurring}

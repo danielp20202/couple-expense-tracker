@@ -16,43 +16,47 @@
  *
  *   Example: change `primary` below from blue to green and every button,
  *   link, and highlight in the app turns green.
+ *
+ * "Ledger" design system — editorial, flat, hairline-rule surfaces instead
+ * of rounded shadowed cards; serif figures instead of pill/fintech shapes.
  * ========================================================================== */
 
 export const theme = {
   colors: {
     // Page + surfaces
-    background: "#FAF9F7", // warm off-white page background
-    surface: "#FFFFFF", // cards / panels
-    surfaceMuted: "#F3F1EE", // subtle hover states, secondary areas
-    border: "#E8E4DF", // hairline borders — barely visible
+    background: "#EAE7DF", // warm parchment page background
+    surface: "#F6F3EC", // cards / panels — flat sheets, not white
+    surfaceMuted: "#EFEBE0", // subtle hover states, secondary areas
+    border: "#DDD6C8", // hairline borders — visible, not barely-there
 
     // Text
-    ink: "#1C1917", // primary text — warm near-black
-    inkMuted: "#78716C", // secondary / helper text
-    inkInverse: "#FFFFFF", // text on colored backgrounds
+    ink: "#1E1C18", // primary text — near-black ink
+    inkMuted: "#8C8676", // secondary / helper text
+    inkInverse: "#F6F3EC", // text on ink-colored backgrounds
 
     // Brand / actions
-    primary: "#C2674A", // warm terracotta — buttons, active nav
-    primaryHover: "#A8553A", // hover state for primary
-    accent: "#7C9885", // muted sage green
+    primary: "#1E1C18", // ink-colored primary buttons/active states
+    primaryHover: "#3D3A32", // hover state for primary
+    accent: "#2F6B4F", // forest green — positive amounts, active accents
 
     // Status
-    positive: "#7C9885", // settled / all-clear — sage green
-    negative: "#C2674A", // errors / destructive — reuse primary
-    warningBg: "#FDF3E7", // soft warm warning background
+    positive: "#2F6B4F", // owed to you / settled — forest green
+    negative: "#6B3F63", // you owe / destructive — plum
+    warningBg: "#F3E9DC", // warm-neutral warning background
   },
 
   // Font family names. Import the actual webfont in app/globals.css.
   fonts: {
-    sans: "'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
-    mono: "'JetBrains Mono', ui-monospace, monospace",
+    serif: "'Source Serif 4', ui-serif, Georgia, serif", // headings + headline figures
+    sans: "'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif", // body
+    mono: "'IBM Plex Mono', ui-monospace, monospace", // eyebrow labels, inline figures
   },
 
-  // Corner roundness
+  // Corner roundness — Ledger is flat, not pill-shaped.
   radius: {
-    card: "16px",
-    control: "12px", // inputs and form controls
-    pill: "9999px",  // buttons and nav pills
+    card: "3px",
+    control: "6px", // inputs and form controls
+    pill: "6px", // buttons and toggle chips — no longer a true pill
   },
 
   // A few custom spacing tokens (Tailwind's default scale still works too)
