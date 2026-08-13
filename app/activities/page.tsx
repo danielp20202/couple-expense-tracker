@@ -2,7 +2,7 @@ import { getActivities, ACTIVITY_STATUS_ORDER } from "@/lib/activities";
 import { isNotionConfigured } from "@/lib/notion";
 import { content } from "@/content";
 import { formatMoney } from "@/lib/format";
-import { Card, Chip, SectionTitle } from "@/app/components/ui";
+import { Card, Chip, SectionTitle, PageTitle } from "@/app/components/ui";
 import type { Activity } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export default async function ActivitiesPage() {
   if (!isNotionConfigured()) {
     return (
       <div className="space-y-5">
-        <SectionTitle>{content.activities.title}</SectionTitle>
+        <PageTitle>{content.activities.title}</PageTitle>
         <Card className="bg-warning-bg border-warning-bg">
           <p className="text-sm text-ink">{content.activities.notConfigured}</p>
         </Card>
@@ -26,7 +26,7 @@ export default async function ActivitiesPage() {
     console.error("Failed to load activities from Notion:", err);
     return (
       <div className="space-y-5">
-        <SectionTitle>{content.activities.title}</SectionTitle>
+        <PageTitle>{content.activities.title}</PageTitle>
         <Card className="bg-warning-bg border-warning-bg">
           <p className="text-sm text-ink">{content.activities.loadError}</p>
         </Card>
@@ -97,7 +97,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
         </div>
       )}
 
-      <h3 className="text-sm font-semibold text-ink">{activity.name}</h3>
+      <h3 className="font-serif text-base font-semibold text-ink">{activity.name}</h3>
       {meta && <p className="text-xs text-ink-muted mt-0.5">{meta}</p>}
 
       {activity.description && (
@@ -128,7 +128,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
           href={activity.link}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-block text-xs text-primary underline"
+          className="mt-3 inline-block text-xs text-ink-muted underline hover:text-ink transition-colors"
         >
           {activity.link.replace(/^https?:\/\//, "").split("/")[0]}
         </a>
