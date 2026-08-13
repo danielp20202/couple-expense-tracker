@@ -120,5 +120,5 @@ export interface Activity {
   notes: string | null;
   tip: string | null;
   targetDate: string | null; // YYYY-MM-DD
-  notionUrl: string;
+  coverImage: string | null;
 }

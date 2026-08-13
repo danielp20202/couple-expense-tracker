@@ -241,21 +241,19 @@ export const content = {
     },
   },
 
-  /** Read-only list of date ideas, sourced from a Notion database. */
+  /** Read-only list of date ideas. Data source is deliberately an implementation
+   *  detail (see lib/activities.ts) — nothing here should name it. */
   activities: {
     title: "Activities",
-    help: "Ideas for things to do together. Add or edit entries in the Notion “Activities” database — changes show up here on reload.",
-    empty: "No activities yet. Add some in the Notion “Activities” database.",
-    notConfigured:
-      "Notion isn't connected yet. Set NOTION_TOKEN and NOTION_ACTIVITIES_DB_ID (see the README) to show this list.",
-    loadError:
-      "Couldn't load activities from Notion. Double-check the database is shared with your integration (··· → Connections in Notion) and that NOTION_ACTIVITIES_DB_ID is correct — see the README.",
+    help: "Ideas for things to do together.",
+    empty: "No activities yet.",
+    notConfigured: "Activities aren't set up yet. See the README for setup steps.",
+    loadError: "Couldn't load activities right now. See the README for setup steps.",
     statusGroups: {
       "Want to try": "Want to try",
       Planned: "Planned",
       Done: "Done",
     } as Record<string, string>,
-    openInNotion: "Open in Notion ↗",
     driveTime: (min: number) => `${min} min drive`,
     who: {
       Couple: "Couple",

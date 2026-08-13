@@ -30,12 +30,23 @@ function urlValue(prop: NotionProperty | undefined): string | null {
 function dateStart(prop: NotionProperty | undefined): string | null {
   return prop?.date?.start ?? null;
 }
+function coverImageUrl(page: any): string | null {
+  const cover = page.cover;
+  if (!cover) return null;
+  if (cover.type === "external") return cover.external?.url ?? null;
+  if (cover.type === "file") return cover.file?.url ?? null;
+  return null;
+}
 
-function mapPage(page: any): Activity {
+/** Returns null for blank rows (e.g. an accidental empty "+ New" row in the
+ *  source database) so they're filtered out rather than shown as "Untitled". */
+function mapPage(page: any): Activity | null {
   const p: Record<string, NotionProperty> = page.properties ?? {};
+  const name = plainText(p.Name);
+  if (!name) return null;
   return {
     id: page.id,
-    name: plainText(p.Name) ?? "Untitled",
+    name,
     type: selectName(p.Type),
     status: statusName(p.Status),
     categories: multiSelectNames(p.Category),
@@ -52,7 +63,7 @@ function mapPage(page: any): Activity {
     notes: plainText(p.Notes),
     tip: plainText(p.Tip),
     targetDate: dateStart(p["Target date"]),
-    notionUrl: page.url,
+    coverImage: coverImageUrl(page),
   };
 }
 
@@ -64,7 +75,7 @@ export async function getActivities(): Promise<Activity[]> {
   if (!isNotionConfigured()) return [];
   const databaseId = process.env.NOTION_ACTIVITIES_DB_ID!;
   const pages = await queryDatabaseAll(databaseId);
-  const activities = pages.map(mapPage);
+  const activities = pages.map(mapPage).filter((a): a is Activity => a !== null);
 
   const rank = (status: string | null) => {
     const i = ACTIVITY_STATUS_ORDER.indexOf((status ?? "") as any);

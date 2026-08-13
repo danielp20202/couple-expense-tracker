@@ -2,7 +2,7 @@ import { getActivities, ACTIVITY_STATUS_ORDER } from "@/lib/activities";
 import { isNotionConfigured } from "@/lib/notion";
 import { content } from "@/content";
 import { formatMoney } from "@/lib/format";
-import { Card, Chip, Money, SectionTitle } from "@/app/components/ui";
+import { Card, Chip, SectionTitle } from "@/app/components/ui";
 import type { Activity } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -73,17 +73,32 @@ function ActivityCard({ activity }: { activity: Activity }) {
     Boolean(activity.indoorOutdoor) ||
     activity.seasons.length > 0;
 
+  // Cost is just one more fact about the entry, not the headline — folded in
+  // alongside drive time / who / rating rather than shown as a money figure.
+  const footer = [
+    activity.driveTimeMinutes != null
+      ? content.activities.driveTime(activity.driveTimeMinutes)
+      : null,
+    activity.who ? content.activities.who[activity.who] ?? activity.who : null,
+    activity.estCost != null ? formatMoney(activity.estCost) : null,
+    activity.rating != null ? `★ ${activity.rating}` : null,
+  ].filter((s): s is string => Boolean(s));
+
   return (
     <Card>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-ink">{activity.name}</h3>
-          {meta && <p className="text-xs text-ink-muted mt-0.5">{meta}</p>}
+      {activity.coverImage && (
+        <div className="-mx-5 -mt-5 mb-4 overflow-hidden rounded-t-card">
+          <img
+            src={activity.coverImage}
+            alt=""
+            loading="lazy"
+            className="h-40 w-full object-cover"
+          />
         </div>
-        {activity.estCost != null && (
-          <Money value={formatMoney(activity.estCost)} className="text-sm shrink-0" />
-        )}
-      </div>
+      )}
+
+      <h3 className="text-sm font-semibold text-ink">{activity.name}</h3>
+      {meta && <p className="text-xs text-ink-muted mt-0.5">{meta}</p>}
 
       {activity.description && (
         <p className="text-sm text-ink mt-2">{activity.description}</p>
@@ -102,36 +117,22 @@ function ActivityCard({ activity }: { activity: Activity }) {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-ink-muted">
-        {activity.driveTimeMinutes != null && (
-          <span>{content.activities.driveTime(activity.driveTimeMinutes)}</span>
-        )}
-        {activity.who && <span>{content.activities.who[activity.who] ?? activity.who}</span>}
-        {activity.rating != null && <span>★ {activity.rating}</span>}
-      </div>
+      {footer.length > 0 && (
+        <p className="text-xs text-ink-muted mt-3">{footer.join(" · ")}</p>
+      )}
 
       {activity.tip && <p className="text-xs text-ink-muted mt-3 italic">{activity.tip}</p>}
 
-      <div className="flex gap-4 mt-3">
-        {activity.link && (
-          <a
-            href={activity.link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-primary underline"
-          >
-            {activity.link.replace(/^https?:\/\//, "").split("/")[0]}
-          </a>
-        )}
+      {activity.link && (
         <a
-          href={activity.notionUrl}
+          href={activity.link}
           target="_blank"
           rel="noreferrer"
-          className="text-xs text-ink-muted underline"
+          className="mt-3 inline-block text-xs text-primary underline"
         >
-          {content.activities.openInNotion}
+          {activity.link.replace(/^https?:\/\//, "").split("/")[0]}
         </a>
-      </div>
+      )}
     </Card>
   );
 }
