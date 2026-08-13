@@ -13,7 +13,7 @@ For stable rules and file ownership, see [`CLAUDE.md`](./CLAUDE.md).
 
 > **⚠️ Heads-up — App edited `Nav.tsx` (your file).** At the human's direct request ("make Chores a tab"), the App agent added the **Chores** nav pill to the `links` array in `app/components/Nav.tsx` and extended the `active` check so the tab highlights on `/chores/*` sub-routes. This is the one cross-ownership edit; it's minimal and uses the existing `content.nav.chores` string. Please fold it into your styling as you see fit — no need to revert. The earlier "add a Chores nav pill" to-do is now done.
 
-> **⚠️ Heads-up — App added an `Activities` nav entry (your file), on branch `feature/activities` (not yet merged).** Same pattern as Chores: one line added to the `links` array in `app/components/Nav.tsx` using the existing `content.nav.activities` string, no other Nav changes. The new `/activities` page itself (list of date ideas, read from a Notion database — see README § "Activities (Notion)") is plain `Card`/`Chip` markup using existing design tokens, unstyled beyond that — happy for Visuals to give it a pass whenever, no rush since it's optional/low-traffic. Also added a `Chip` primitive to `app/components/ui.tsx` (not Nav-owned, but flagging since it's new shared UI).
+> **⚠️ Heads-up — App added an `Activities` nav entry (your file). Merged to `main`.** Same pattern as Chores: one line added to the `links` array in `app/components/Nav.tsx` using the existing `content.nav.activities` string, no other Nav changes. The new `/activities` page (list of date ideas — data source is deliberately not named anywhere in the UI copy, see README for the setup details if you need them) shows each entry as a photo card: cover image bled to the card's top edge (`-mx-5 -mt-5 rounded-t-card`, see `app/activities/page.tsx`), then title/description/tags/meta below, using existing design tokens. Also added a `Chip` primitive to `app/components/ui.tsx` (not Nav-owned, but flagging since it's new shared UI). Happy for Visuals to give it a pass whenever — no rush, it's low-traffic — just please keep the copy source-agnostic if you touch `content.ts`'s `activities` block.
 
 ---
 
@@ -27,6 +27,7 @@ _Nothing pending._
 
 | Date | Agent | Item |
 |------|-------|------|
+| 2026-08-13 | App | **Activities tab** — read-only date-ideas list at `/activities`, cards with cover photos, category/vibe/season tags, and a compact meta line (drive time, who, cost, rating). Data source deliberately unnamed in all UI copy (`feature/activities` → `main`). |
 | 2026-07-29 | App | **Per-expense split percentages** — expenses + fixed costs carry a split (default 50/50); new `SplitPicker` component; balance/share math reworked in `lib/calc.ts`. Two additive columns applied to Neon. Touched `content.ts` (new `split` block + dashboard share labels). |
 | 2026-06-25 | App | Chores **mobile responsiveness fixes** — "+ New chore" button full-width on its own row, current week starts at today on mobile (past days hidden), manage rows stack so long names don't overlap the buttons (`fix/chores-mobile-responsive` → `main`). |
 | 2026-06-25 | App | **Upcoming chores per person** on the Summary tab (`feature/dashboard-upcoming-chores` → `main`). |
