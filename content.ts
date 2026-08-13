@@ -21,6 +21,7 @@ export const content = {
     fixedCosts: "Fixed costs",
     types: "Categories",
     chores: "Chores",
+    activities: "Activities",
   },
 
   dashboard: {
@@ -238,6 +239,27 @@ export const content = {
         return dayOfMonth ? `Day ${dayOfMonth} each month` : "Monthly";
       return "";
     },
+  },
+
+  /** Read-only list of date ideas. Data source is deliberately an implementation
+   *  detail (see lib/activities.ts) — nothing here should name it. */
+  activities: {
+    title: "Activities",
+    help: "Ideas for things to do together.",
+    empty: "No activities yet.",
+    notConfigured: "Activities aren't set up yet. See the README for setup steps.",
+    loadError: "Couldn't load activities right now. See the README for setup steps.",
+    statusGroups: {
+      "Want to try": "Want to try",
+      Planned: "Planned",
+      Done: "Done",
+    } as Record<string, string>,
+    driveTime: (min: number) => `${min} min drive`,
+    who: {
+      Couple: "Couple",
+      Solo: "Solo",
+      Either: "Either",
+    } as Record<string, string>,
   },
 
   /** Per-expense split control + display (expense form, history edit, fixed costs). */

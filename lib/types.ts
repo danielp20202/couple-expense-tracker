@@ -98,3 +98,27 @@ export interface ChoreOccurrence {
   done: boolean;
   completed_by: string | null;
 }
+
+/** A date-idea row from the "Activities" Notion database (see lib/notion.ts).
+ *  Read-only — editing happens in Notion, not in this app. */
+export interface Activity {
+  id: string; // Notion page id
+  name: string;
+  type: string | null; // Activity | Place | Food/Drink | Event | Other
+  status: string | null; // Want to try | Planned | Done
+  categories: string[]; // Outdoors, Fitness, Travel, Culture, Food, Learning
+  who: string | null; // Couple | Solo | Either
+  city: string | null;
+  driveTimeMinutes: number | null;
+  indoorOutdoor: string | null; // Indoor | Outdoor | Both
+  seasons: string[]; // Spring, Summer, Fall, Winter, Year-round
+  vibe: string | null; // Chill | Adventurous | Romantic | Mixed
+  estCost: number | null;
+  rating: number | null;
+  link: string | null;
+  description: string | null;
+  notes: string | null;
+  tip: string | null;
+  targetDate: string | null; // YYYY-MM-DD
+  coverImage: string | null;
+}
