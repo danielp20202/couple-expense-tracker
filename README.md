@@ -154,6 +154,40 @@ After that, the workflow is just: push to `main` → Vercel builds and deploys. 
 point at a different Neon database, edit `DATABASE_URL` in **Settings →
 Environment Variables** and redeploy.
 
+## 4. Activities (Notion) — optional
+
+The **Activities** tab (`/activities`) shows a read-only list of date ideas
+pulled from a Notion database. It's optional: without it configured, the tab
+shows a setup notice instead of erroring. There's **no write-back** — adding or
+editing entries always happens directly in Notion, not in the app; the app
+just reads on every page load (`lib/notion.ts`, `lib/activities.ts`).
+
+1. Create an internal integration at
+   [notion.so/my-integrations](https://www.notion.so/my-integrations) and copy
+   its **Internal Integration Secret**.
+2. Open your Notion database of activities, click **···** → **Connections**,
+   and connect the integration you just created (this is what grants it
+   access — an integration can only see pages/databases explicitly shared
+   with it).
+3. Copy the database ID out of its URL:
+   `notion.so/workspace/<DATABASE_ID>?v=...` (32-character ID, dashes
+   optional).
+4. Add both to `.env.local` (and, for production, to Vercel's Environment
+   Variables the same way as `DATABASE_URL`):
+   ```
+   NOTION_TOKEN=secret_...
+   NOTION_ACTIVITIES_DB_ID=...
+   ```
+
+The expected schema (property names are matched by exact string, so keep
+these names if you rename columns): `Name` (title), `Type` (select), `Status`
+(status: e.g. *Want to try / Planned / Done*), `Category` (multi-select),
+`Who` (select), `City` (text), `Drive time` (number), `Indoor/Outdoor`
+(select), `Season` (multi-select), `Vibe` (select), `Est. cost` (number),
+`Rating` (number), `Link` (url), `Description` (text), `Notes` (text), `Tip`
+(text), `Target date` (date). Missing/renamed properties just render as
+blank — nothing breaks.
+
 ## Pages
 
 | Route                 | What it does                                                        |
@@ -165,3 +199,4 @@ Environment Variables** and redeploy.
 | `/expenses/history`   | Month filter, page size (10/25/50), inline edit, multi-select bulk delete |
 | `/fixed-costs`        | Manage recurring monthly costs (amount, category, payer, source)    |
 | `/expense-types`      | Manage categories (add / rename / delete)                           |
+| `/activities`         | Read-only date-ideas list, sourced from Notion (see above)          |

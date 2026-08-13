@@ -74,7 +74,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 /**
  * Ledger-style chip. Renders as a `<button>` (toggleable) when `onClick` is
  * given — category pickers, split presets, weekday/filter toggles — or a
- * plain `<span>` badge otherwise.
+ * plain `<span>` badge otherwise (e.g. Activities tags).
  */
 export function Chip({
   children,

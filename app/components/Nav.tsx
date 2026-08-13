@@ -12,6 +12,7 @@ const links = [
   { href: "/expenses/history", label: content.nav.history },
   { href: "/fixed-costs", label: content.nav.fixedCosts },
   { href: "/expense-types", label: content.nav.types },
+  { href: "/activities", label: content.nav.activities },
 ];
 
 export function Nav() {
