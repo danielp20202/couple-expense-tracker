@@ -39,6 +39,14 @@ async function notionFetch(path: string, init: RequestInit = {}): Promise<any> {
   return res.json();
 }
 
+/** Archives (soft-deletes) a page — recoverable from Notion's own trash. */
+export async function archivePage(pageId: string): Promise<void> {
+  await notionFetch(`/pages/${pageId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ archived: true }),
+  });
+}
+
 /** Query every row of a database, following pagination automatically. */
 export async function queryDatabaseAll(
   databaseId: string,

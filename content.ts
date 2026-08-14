@@ -256,6 +256,9 @@ export const content = {
     } as Record<string, string>,
     driveTime: (min: number) => `${min} min drive`,
     openInMaps: "Directions ↗",
+    delete: "Delete",
+    confirmDelete: (name: string) =>
+      `Delete "${name}"? It's removed from Notion too — recoverable from Notion's own trash for a while, but there's no undo here.`,
     who: {
       Couple: "Couple",
       Solo: "Solo",

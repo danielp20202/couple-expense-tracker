@@ -3,6 +3,7 @@ import { isNotionConfigured } from "@/lib/notion";
 import { content } from "@/content";
 import { formatMoney } from "@/lib/format";
 import { Card, Chip, SectionTitle, PageTitle } from "@/app/components/ui";
+import { DeleteActivityButton } from "@/app/components/DeleteActivityButton";
 import type { Activity } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -147,6 +148,8 @@ function ActivityCard({ activity }: { activity: Activity }) {
           )}
         </div>
       )}
+
+      <DeleteActivityButton id={activity.id} name={activity.name} />
     </Card>
   );
 }
