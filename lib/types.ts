@@ -117,6 +117,8 @@ export interface Activity {
   rating: number | null;
   link: string | null;
   mapLink: string | null;
+  /** Per-person interest rating (1-5, null = not rated), keyed by display name. */
+  ratings: { name: string; value: number | null }[];
   description: string | null;
   notes: string | null;
   tip: string | null;

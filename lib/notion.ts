@@ -64,3 +64,39 @@ export async function queryDatabaseAll(
   } while (cursor);
   return pages;
 }
+
+/** Updates a page's properties. Values must already be in Notion's property-value
+ *  shape — build them with `notionProp.*` below rather than passing raw JS values. */
+export async function updatePageProperties(
+  pageId: string,
+  properties: Record<string, unknown>
+): Promise<void> {
+  await notionFetch(`/pages/${pageId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ properties }),
+  });
+}
+
+/** Creates a page in a database. Same property-value shape rule as above. */
+export async function createPage(
+  databaseId: string,
+  properties: Record<string, unknown>
+): Promise<{ id: string }> {
+  return notionFetch(`/pages`, {
+    method: "POST",
+    body: JSON.stringify({ parent: { database_id: databaseId }, properties }),
+  });
+}
+
+/** Builders for Notion's per-type property-value JSON shape (write side — the
+ *  read side lives in lib/activities.ts's own small parsers). */
+export const notionProp = {
+  title: (s: string) => ({ title: s ? [{ type: "text", text: { content: s } }] : [] }),
+  richText: (s: string | null) => ({
+    rich_text: s ? [{ type: "text", text: { content: s } }] : [],
+  }),
+  number: (n: number | null) => ({ number: n }),
+  select: (name: string | null) => ({ select: name ? { name } : null }),
+  multiSelect: (names: string[]) => ({ multi_select: names.map((name) => ({ name })) }),
+  relation: (ids: string[]) => ({ relation: ids.map((id) => ({ id })) }),
+};

@@ -241,14 +241,17 @@ export const content = {
     },
   },
 
-  /** Read-only list of date ideas. Data source is deliberately an implementation
-   *  detail (see lib/activities.ts) — nothing here should name it. */
+  /** List of date ideas, with per-person ratings and mood/preference signals
+   *  for the (future) scouting job. Data source is deliberately an
+   *  implementation detail (see lib/activities.ts) — nothing here should
+   *  name it. */
   activities: {
     title: "Activities",
     help: "Ideas for things to do together.",
     empty: "No activities yet.",
     notConfigured: "Activities aren't set up yet. See the README for setup steps.",
     loadError: "Couldn't load activities right now. See the README for setup steps.",
+    needsProfile: "Pick your profile from Summary to rate activities and set preferences.",
     statusGroups: {
       "Want to try": "Want to try",
       Planned: "Planned",
@@ -264,6 +267,29 @@ export const content = {
       Solo: "Solo",
       Either: "Either",
     } as Record<string, string>,
+
+    // Per-person 1-5 star rating (an interest signal, not a post-visit review —
+    // votable anytime regardless of Status).
+    you: "You",
+    rateAria: (n: number) => `Rate ${n} star${n === 1 ? "" : "s"}`,
+
+    // Per-entry "more like this" — a single tap, no confirmation (not destructive).
+    moreLikeThis: "More like this",
+    moreLikeThisDone: "Noted ✓",
+
+    // Global mood-setter — a standing "what we're into lately" signal.
+    moodTitle: "What are you in the mood for?",
+    moodHelp: "Nudges next week's picks. Pick a vibe, add a note, or both.",
+    moodCategoryLabel: "Category",
+    moodVibeLabel: "Vibe",
+    moodNotePlaceholder: "Anything specific? e.g. \"somewhere with a view\"",
+    moodSubmit: "Send",
+    moodSending: "Sending…",
+    moodSuccess: "Got it — factoring this into next picks.",
+    // Reuses the exact Category/Vibe vocabulary from Notion so a scouting
+    // agent can match signals straight to activity tags with no translation.
+    moodCategories: ["Outdoors", "Fitness", "Travel", "Culture", "Food", "Learning"],
+    moodVibes: ["Chill", "Adventurous", "Romantic", "Mixed"],
   },
 
   /** Per-expense split control + display (expense form, history edit, fixed costs). */

@@ -38,6 +38,15 @@ function coverImageUrl(page: any): string | null {
   return null;
 }
 
+/** Any property literally named "<Someone> Rating" is a per-person rating —
+ *  scanned by name pattern rather than hardcoded, so this doesn't care who
+ *  the two people are or how many "Rating" columns exist. */
+function ratingsOf(p: Record<string, NotionProperty>): { name: string; value: number | null }[] {
+  return Object.keys(p)
+    .filter((key) => key.endsWith(" Rating"))
+    .map((key) => ({ name: key.slice(0, -" Rating".length), value: numberValue(p[key]) }));
+}
+
 /** Returns null for blank rows (e.g. an accidental empty "+ New" row in the
  *  source database) so they're filtered out rather than shown as "Untitled". */
 function mapPage(page: any): Activity | null {
@@ -65,18 +74,23 @@ function mapPage(page: any): Activity | null {
     tip: plainText(p.Tip),
     targetDate: dateStart(p["Target date"]),
     coverImage: coverImageUrl(page),
+    ratings: ratingsOf(p),
   };
 }
 
-/** Reads every row from the "Activities" Notion database. Read-only — this
- *  app never writes back to Notion; adding/editing entries happens there.
- *  Returns [] (rather than throwing) when Notion isn't configured, so the
- *  page can show a setup notice instead of a hard error. */
+/** Reads every row from the "Activities" Notion database, excluding "Signal"
+ *  rows (preference-log entries — see lib/preferences.ts — stored in this
+ *  same database so they inherit its Notion sharing, but never shown as an
+ *  activity). Returns [] (rather than throwing) when Notion isn't configured,
+ *  so the page can show a setup notice instead of a hard error. */
 export async function getActivities(): Promise<Activity[]> {
   if (!isNotionConfigured()) return [];
   const databaseId = process.env.NOTION_ACTIVITIES_DB_ID!;
   const pages = await queryDatabaseAll(databaseId);
-  const activities = pages.map(mapPage).filter((a): a is Activity => a !== null);
+  const activities = pages
+    .filter((page) => page.properties?.["Entry Kind"]?.select?.name !== "Signal")
+    .map(mapPage)
+    .filter((a): a is Activity => a !== null);
 
   const rank = (status: string | null) => {
     const i = ACTIVITY_STATUS_ORDER.indexOf((status ?? "") as any);
