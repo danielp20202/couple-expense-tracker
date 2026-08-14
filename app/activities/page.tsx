@@ -123,15 +123,29 @@ function ActivityCard({ activity }: { activity: Activity }) {
 
       {activity.tip && <p className="text-xs text-ink-muted mt-3 italic">{activity.tip}</p>}
 
-      {activity.link && (
-        <a
-          href={activity.link}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 inline-block text-xs text-ink-muted underline hover:text-ink transition-colors"
-        >
-          {activity.link.replace(/^https?:\/\//, "").split("/")[0]}
-        </a>
+      {(activity.link || activity.mapLink) && (
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          {activity.link && (
+            <a
+              href={activity.link}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-ink-muted underline hover:text-ink transition-colors"
+            >
+              {activity.link.replace(/^https?:\/\//, "").split("/")[0]}
+            </a>
+          )}
+          {activity.mapLink && (
+            <a
+              href={activity.mapLink}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-ink-muted underline hover:text-ink transition-colors"
+            >
+              {content.activities.openInMaps}
+            </a>
+          )}
+        </div>
       )}
     </Card>
   );

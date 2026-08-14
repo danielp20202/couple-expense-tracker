@@ -255,6 +255,7 @@ export const content = {
       Done: "Done",
     } as Record<string, string>,
     driveTime: (min: number) => `${min} min drive`,
+    openInMaps: "Directions ↗",
     who: {
       Couple: "Couple",
       Solo: "Solo",

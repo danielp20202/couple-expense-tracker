@@ -10,9 +10,9 @@ const links = [
   { href: "/chores", label: content.nav.chores },
   { href: "/expenses", label: content.nav.addExpense },
   { href: "/expenses/history", label: content.nav.history },
+  { href: "/activities", label: content.nav.activities },
   { href: "/fixed-costs", label: content.nav.fixedCosts },
   { href: "/expense-types", label: content.nav.types },
-  { href: "/activities", label: content.nav.activities },
 ];
 
 export function Nav() {

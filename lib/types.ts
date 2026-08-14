@@ -116,6 +116,7 @@ export interface Activity {
   estCost: number | null;
   rating: number | null;
   link: string | null;
+  mapLink: string | null;
   description: string | null;
   notes: string | null;
   tip: string | null;

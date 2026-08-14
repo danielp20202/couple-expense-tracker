@@ -59,6 +59,7 @@ function mapPage(page: any): Activity | null {
     estCost: numberValue(p["Est. cost"]),
     rating: numberValue(p.Rating),
     link: urlValue(p.Link),
+    mapLink: urlValue(p["Map link"]),
     description: plainText(p.Description),
     notes: plainText(p.Notes),
     tip: plainText(p.Tip),
